@@ -4,24 +4,13 @@
     "type": "magento2-module",
     "version": "1.0.0",
     "require": {
-      "php": "~5.5.0|~5.6.0|~7.0.0",
-      "magento/framework": "^100.1.0|^101.0.0"
-    },
-    "require-dev":{
-        "phpunit/phpunit":"*",
-        "composer/composer":"*@dev"
-    },
-    "repositories": {
-        "magento": {
-            "type": "composer",
-            "url": "https://repo.magento.com/"
-        }
-    },
+      "php": "~5.5.0|~5.6.0|~7.0.0"
+     },
     "autoload": {
       "files": [ "registration.php" ],
       "psr-4": {
         "Trustpilot\\Invitation\\": ""
       }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "dev"
   }
