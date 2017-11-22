@@ -11,6 +11,5 @@
       "psr-4": {
         "Trustpilot\\Invitation\\": ""
       }
-    },
-    "minimum-stability": "dev"
+    }
   }
