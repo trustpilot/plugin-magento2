@@ -1,9 +1,9 @@
 <?php
-namespace Trustpilot\Invitation\Block;
+namespace Trustpilot\Reviews\Block;
 
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\View\Element\Template;
-use Trustpilot\Invitation\Helper\Data;
+use Trustpilot\Reviews\Helper\Data;
 
 class Head extends Template
 {
@@ -23,7 +23,7 @@ class Head extends Template
 
     public function renderScript()
     {
-        $key = str_replace(' ', '', $this->_helper->getConfigValue('key'));
+        $key = trim($this->_helper->getConfigValue('key'));
         return '
         <script type="text/javascript">
             (function(w,d,s,r,n){w.TrustpilotObject=n;w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)};
