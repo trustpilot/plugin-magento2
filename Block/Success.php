@@ -1,5 +1,5 @@
 <?php
-namespace Trustpilot\Invitation\Block;
+namespace Trustpilot\Reviews\Block;
 
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order;
@@ -33,7 +33,7 @@ class Success extends Template
         $this->_checkoutSession = $checkoutSession;
         $this->_product = $product;
         $this->_productMetadata = $productMetadata;
-        $this->_version = '1.0.8';
+        $this->_version = '1.0.14';
         parent::__construct($context, $data);
     }
 
@@ -57,12 +57,13 @@ class Success extends Template
         
         foreach ($items as $i) {
             $product = $this->_product->load($i->getProductId());
+            $brand = $product->getAttributeText('manufacturer');
             array_push(
                 $products,
                 array(
                     'productUrl' => $product->getProductUrl(),
                     'name' => $product->getName(),
-                    //'brand' => $brand
+                    'brand' => $brand ? $brand : '',
                     'sku' => $product->getSku(),
                     //'gtin' => $gtin,
                     //'mpn' => $mpn,

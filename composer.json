@@ -2,11 +2,14 @@
     "name": "trustpilot/module-reviews",
     "description": "Invite customers to review your e-shop.",
     "type": "magento2-module",
-    "version": "1.0.1",
+    "version": "1.0.2",
+    "license": [
+      "OSL-3.0"
+    ],
     "autoload": {
       "files": [ "registration.php" ],
       "psr-4": {
-        "Trustpilot\\Invitation\\": ""
+        "Trustpilot\\Reviews\\": ""
       }
     }
   }
