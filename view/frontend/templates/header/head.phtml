@@ -1,2 +1,7 @@
 <?php /* @var $block \Trustpilot\Reviews\Block\Head */?>
-<?php echo $block->renderScript(); ?>
+<script type="text/javascript">
+    (function(w,d,s,r,n){w.TrustpilotObject=n;w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)};
+    a=d.createElement(s);a.async=1;a.src=r;a.type='text/java'+s;f=d.getElementsByTagName(s)[0];
+    f.parentNode.insertBefore(a,f)})(window,document,'script', '<?php echo $block->getScriptUrl(); ?>', 'tp');
+    tp('register','<?php echo $block->getInstallationKey(); ?>');
+</script>

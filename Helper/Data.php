@@ -10,6 +10,7 @@ class Data extends AbstractHelper
 
     public function getConfigValue($value)
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_GENERAL . $value, \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+        return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_GENERAL
+            . $value, \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
     }
 }
