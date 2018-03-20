@@ -10,7 +10,7 @@ class Head extends Template
     protected $_helper;
 
     protected $_scriptUrl;
-    
+
     public function __construct(
         Context $context,
         Data $helper,
@@ -28,7 +28,7 @@ class Head extends Template
 
     public function getInstallationKey()
     {
-		$key = trim($this->_helper->getConfigValue('key'));
+        $key = trim($this->_helper->getConfigValue('key'));
         return $key;
     }
 }
