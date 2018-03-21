@@ -48,6 +48,6 @@ class Signup extends \Magento\Config\Block\System\Config\Form\Field
     }
     public function getSignUpUrl()
     {
-        return "https://business.trustpilot.com/signup?utm_source=magentov2&utm_medium=appstore&utm_campaign=magentov2";
+        return "https://business.trustpilot.com/signup?utm_source=magentov2&utm_medium=appstore&utm_campaign=magentov2app";
     }
 }
