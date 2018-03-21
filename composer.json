@@ -2,7 +2,7 @@
     "name": "trustpilot/module-reviews",
     "description": "Invite customers to review your e-shop.",
     "type": "magento2-module",
-    "version": "1.0.53",
+    "version": "1.0.54",
     "license": [
       "AFL-3.0"
     ],
