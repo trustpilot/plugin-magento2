@@ -6,9 +6,6 @@
     "license": [
       "AFL-3.0"
     ],
-    "require": {
-      "magento/framework": "~100.0"
-    },
     "autoload": {
       "files": [ "registration.php" ],
       "psr-4": {
