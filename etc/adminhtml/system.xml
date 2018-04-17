@@ -4,16 +4,39 @@
         <tab id="trustpilot" translate="label" sortOrder="10">
             <label>Trustpilot</label>
         </tab>
-        <section id="trustpilot" translate="label" sortOrder="130" showInDefault="0" showInWebsite="1" showInStore="0">
+        <section id="trustpilot" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
             <label>General</label>
             <tab>trustpilot</tab>
             <resource>Trustpilot_Reviews::configuration</resource>
-            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="0" showInWebsite="1" showInStore="0">
-                <label>General Configuration</label>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <attribute type="expanded">1</attribute>
+                <label>Trustpilot General Settings</label>
                 <field id="key" translate="label" type="text" sortOrder="1" showInDefault="0" showInWebsite="1" showInStore="0">
-                    <label>Key</label>
-                    <comment>Key which is generated during integration setup in Trustpilot business site</comment>
+                    <label>Installation key</label>
+                    <comment>This is the key provided by Trustpilot to connect to your Magento web store.</comment>
+                </field>
+				<field id="messageDefault" type="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Important</label>
+					<frontend_model>Trustpilot\Reviews\Block\System\Config\Message</frontend_model>
+                </field>
+                <field id="messageStore" type="label" sortOrder="0" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <label>Important</label>
+					<frontend_model>Trustpilot\Reviews\Block\System\Config\Message</frontend_model>
+                </field>
+            </group>
+            <group id="signup" translate="label" type="text" sortOrder="10" showInDefault="0" showInWebsite="1" showInStore="0">
+                <attribute type="expanded">1</attribute>
+                <label>Don’t have an installation key yet?</label>
+                 <field id="create_user" translate="label" sortOrder="20" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Signup</frontend_model>
+                    <label>Step 1:</label>
+                    <comment>Create a new Trustpilot Business account.</comment>
+                </field>
+                   <field id="get_key" translate="label" sortOrder="21" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Connect</frontend_model>
+                    <label>Step 2:</label>
+                    <comment>Connect your Magento store to Trustpilot.</comment>
                 </field>
             </group>
         </section>
