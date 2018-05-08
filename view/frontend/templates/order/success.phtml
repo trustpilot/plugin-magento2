@@ -1,2 +1,7 @@
 <?php /* @var $block \Trustpilot\Reviews\Block\Success */?>
-<?php echo $block->renderScript(); ?>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        tp('createInvitation',<?php echo $block->getOrder(); ?>);
+    });
+    <?php $block->checkInstallationKey(); ?>
+</script>

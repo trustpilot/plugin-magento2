@@ -1,10 +1,23 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <trustpilot>
-            <general>
-                <key></key>
-            </general>
-        </trustpilot>
-    </default>
+       <trustpilotGeneral>
+           <general>
+               <ApiUrl>#{ApiUrl}</ApiUrl>
+               <ScriptUrl>#{ScriptUrl}</ScriptUrl>
+               <WidgetUrl>#{WidgetUrl}</WidgetUrl>
+               <key></key>
+           </general>
+       </trustpilotGeneral>
+       <trustpilotTrustbox>
+           <trustbox>
+               <trustbox_enable></trustbox_enable>
+               <trustbox_locale></trustbox_locale>
+               <trustbox_template></trustbox_template>
+               <trustbox_position></trustbox_position>
+               <trustbox_paddingx>30</trustbox_paddingx>
+               <trustbox_paddingy>10</trustbox_paddingy>
+           </trustbox>
+       </trustpilotTrustbox>
+   </default>
 </config>

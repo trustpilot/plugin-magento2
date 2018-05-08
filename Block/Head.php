@@ -9,7 +9,9 @@ class Head extends Template
 {
     protected $_helper;
 
-    protected $_script_url;
+    protected $_tbWidgetScriptUrl;
+
+    protected $_scriptUrl;
     
     public function __construct(
         Context $context,
@@ -17,19 +19,53 @@ class Head extends Template
         array $data = []
     ) {
         $this->_helper = $helper;
-        $this->_script_url = 'https://invitejs.trustpilot.com/tp.min.js';
+        $this->_scriptUrl = $this->_helper->getGeneralConfigValue('ScriptUrl');
+        $this->_tbWidgetScriptUrl = $this->_helper->getGeneralConfigValue('WidgetUrl');
         parent::__construct($context, $data);
     }
 
-    public function renderScript()
+    public function getScriptUrl()
     {
-        $key = trim($this->_helper->getConfigValue('key'));
-        return '
-        <script type="text/javascript">
-            (function(w,d,s,r,n){w.TrustpilotObject=n;w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)};
-            a=d.createElement(s);a.async=1;a.src=r;a.type=\'text/java\'+s;f=d.getElementsByTagName(s)[0];
-            f.parentNode.insertBefore(a,f)})(window,document,\'script\', \''.$this->_script_url.'\', \'tp\');
-            tp(\'register\',\''.$key.'\');
-        </script>';
+        return $this->_scriptUrl;
+    }
+
+    public function getWidgetScriptUrl()
+    {
+        return $this->_tbWidgetScriptUrl;
+    }
+
+    public function getInstallationKey()
+    {
+        return trim($this->_helper->getGeneralConfigValue('key'));
+    }
+
+    public function getTrustBoxStatus()
+    {
+        return trim($this->_helper->getTrustBoxConfigValue('trustbox_enable'));
+    }
+
+    public function getTrustBoxConfig()
+    {
+        $locale   = trim($this->_helper->getTrustBoxConfigValue('trustbox_locale'));
+        $template = trim($this->_helper->getTrustBoxConfigValue('trustbox_template'));
+        $position = trim($this->_helper->getTrustBoxConfigValue('trustbox_position'));
+        $paddingx = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingx'));
+        $paddingy = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingy'));
+
+        if (strrpos($template, "_") == false) {
+            $theme = '';
+        } else {
+            $theme    = substr($template, strrpos($template, "_") + 1, strlen($template));
+            $template = substr($template, 0, strrpos($template, "_"));
+        }
+        $data = array(
+            'theme' => $theme,
+            'locale' => $locale,
+            'template' => $template,
+            'position' => $position,
+            'paddingx' => $paddingx,
+            'paddingy' => $paddingy
+        );
+        return json_encode($data, JSON_HEX_APOS);
     }
 }

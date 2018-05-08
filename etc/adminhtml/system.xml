@@ -4,16 +4,81 @@
         <tab id="trustpilot" translate="label" sortOrder="10">
             <label>Trustpilot</label>
         </tab>
-        <section id="trustpilot" translate="label" sortOrder="130" showInDefault="0" showInWebsite="1" showInStore="0">
+        
+        <section id="trustpilotGeneral" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
             <label>General</label>
             <tab>trustpilot</tab>
             <resource>Trustpilot_Reviews::configuration</resource>
-            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="0" showInWebsite="1" showInStore="0">
-                <label>General Configuration</label>
-                <field id="key" translate="label" type="text" sortOrder="1" showInDefault="0" showInWebsite="1" showInStore="0">
-                    <label>Key</label>
-                    <comment>Key which is generated during integration setup in Trustpilot business site</comment>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <attribute type="expanded">1</attribute>
+                <label>Trustpilot General Settings</label>
+                <field id="key" translate="label" type="text" sortOrder="1" showInDefault="0" showInWebsite="1" showInStore="1">
+                    <label>Installation key</label>
+                    <comment>This is the key provided by Trustpilot to connect to your Magento web store.</comment>
+                </field>
+                <field id="messageDefault" type="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Important</label>
+                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Message</frontend_model>
+                </field>
+            </group>
+            <group id="signup" translate="label" type="text" sortOrder="10" showInDefault="0" showInWebsite="1" showInStore="1">
+                <attribute type="expanded">1</attribute>
+                <label>Don’t have an installation key yet?</label>
+                <field id="create_user_website" translate="label" sortOrder="20" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Signup</frontend_model>
+                    <label>Step 1:</label>
+                    <comment>Create a new Trustpilot Business account.</comment>
+                </field>
+                <field id="get_key_website" translate="label" sortOrder="21" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Connect</frontend_model>
+                    <label>Step 2:</label>
+                    <comment>Connect your Magento store to Trustpilot.</comment>
+                </field>
+                <field id="create_user_store" translate="label" sortOrder="20" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Signup</frontend_model>
+                    <label>Step 1:</label>
+                    <comment>Create a new Trustpilot Business account.</comment>
+                </field>
+                <field id="get_key_store" translate="label" sortOrder="21" showInDefault="0" showInWebsite="0" showInStore="1">
+                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Connect</frontend_model>
+                    <label>Step 2:</label>
+                    <comment>Connect your Magento store to Trustpilot.</comment>
+                </field>
+            </group>
+        </section>
+        <section id="trustpilotTrustbox" translate="label" sortOrder="131" showInDefault="0" showInWebsite="1" showInStore="1"> 
+            <class>separator-top</class>
+            <label>TrustBox</label>
+            <tab>trustpilot</tab>
+            <resource>Trustpilot_Reviews::configuration</resource>
+            <group id="trustbox" translate="label" type="text" sortOrder="50" showInDefault="0" showInWebsite="1" showInStore="1">
+                <label>TrustBox</label>
+                <field id="trustbox_enable" translate="label" type="select" showInDefault="0" showInWebsite="1" showInStore="1">
+                    <label>TrustBox</label>
+                    <source_model>Trustpilot\Reviews\Model\TrustpilotTrustbox</source_model>
+                </field>
+                <field id="trustbox_locale" translate="label" type="select" showInDefault="0" showInWebsite="1" showInStore="1">
+                    <label>Locale</label>
+                    <source_model>Trustpilot\Reviews\Model\TrustpilotLocale</source_model>
+                </field>
+                <field id="trustbox_template" translate="label" type="select" showInDefault="0" showInWebsite="1" showInStore="1">
+                    <label>Template</label>
+                    <source_model>Trustpilot\Reviews\Model\TrustpilotTemplate</source_model>
+                </field>
+                <field id="trustbox_position" translate="label" type="select" showInDefault="0" showInWebsite="1" showInStore="1">
+                    <label>Position</label>
+                    <source_model>Trustpilot\Reviews\Model\TrustpilotPosition</source_model>
+                </field>
+                <field id="trustbox_paddingx" translate="label" type="text" sortOrder="1" showInDefault="0" showInWebsite="1" showInStore="1">
+                    <label>Padding X</label>
+                    <comment>Padding from either left or right border in pixels</comment>
+                    <validate>validate-number</validate>
+                </field>
+                <field id="trustbox_paddingy" translate="label" type="text" sortOrder="1" showInDefault="0" showInWebsite="1" showInStore="1">
+                    <label>Padding Y</label>
+                    <comment>Padding from either top or bottom border in pixels</comment>
+                    <validate>validate-number</validate>
                 </field>
             </group>
         </section>

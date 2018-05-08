@@ -1,2 +1,25 @@
 <?php /* @var $block \Trustpilot\Reviews\Block\Head */?>
-<?php echo $block->renderScript(); ?>
+<script type="text/javascript">
+
+	(function(w,d,s,r,n){w.TrustpilotObject=n;w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)};
+	a=d.createElement(s);a.async=1;a.src=r;a.type='text/java'+s;f=d.getElementsByTagName(s)[0];
+	f.parentNode.insertBefore(a,f)})(window,document,'script', '<?php echo $block->getScriptUrl(); ?>', 'tp');
+	tp('register','<?php echo $block->getInstallationKey(); ?>');
+</script>
+<?php if($block->getTrustBoxStatus()=='enabled'): ?>
+	<script type="text/javascript" src="<?php echo $block->getWidgetScriptUrl(); ?>" async></script>
+	<script type="text/javascript" async>
+		document.addEventListener('DOMContentLoaded', function() {
+			tp('loadTrustBoxWidget', JSON.parse('<?php echo $block->getTrustBoxConfig(); ?>'));
+		});
+	</script>
+<?php else: ?>
+	<script type="text/javascript" async>
+		document.addEventListener('DOMContentLoaded', function() {
+			var stored = localStorage['trustBoxSettings'];
+			if (stored) {
+				localStorage.removeItem('trustBoxSettings');
+			}
+		});
+	</script>
+<?php endif; ?>
