@@ -3,9 +3,9 @@
     <default>
        <trustpilotGeneral>
            <general>
-               <ApiUrl>#{ApiUrl}</ApiUrl>
-               <ScriptUrl>#{ScriptUrl}</ScriptUrl>
-               <WidgetUrl>#{WidgetUrl}</WidgetUrl>
+               <ApiUrl>https://invitejs.tp-staging.com/api/</ApiUrl>
+               <ScriptUrl>https://invitejs.tp-staging.com/tp.min.js</ScriptUrl>
+               <WidgetUrl>http://widget.tp-staging.com/bootstrap/v5/tp.widget.bootstrap.min.js</WidgetUrl>
                <key></key>
            </general>
        </trustpilotGeneral>
