@@ -48,43 +48,54 @@ class Success extends Template
         $this->_helper = $helper;
         $this->_notifications = $notifications;
         $this->_customer = $customer;
-        $this->_version = '1.0.79.1';
+        $this->_version = '1.0.82';
         parent::__construct($context, $data);
     }
 
     public function getOrder()
     {
-        $orderId = $this->_checkoutSession->getLastOrderId();
-        $order   = $this->_salesFactory->load($orderId);
-        $items = $order->getAllItems();
-        $products = [];
-        
-        foreach ($items as $i) {
-            $product = $this->_product->load($i->getProductId());
-            $brand = $product->getAttributeText('manufacturer');
-            array_push(
-                $products,
-                [
-                    'productUrl' => $product->getProductUrl(),
-                    'name' => $product->getName(),
-                    'brand' => $brand ? $brand : '',
-                    'sku' => $product->getSku(),
-                    'imageUrl' => $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $product->getImage()
-                ]
-            );
-        }
+        try {
+            $orderId = $this->_checkoutSession->getLastOrderId();
+            $order   = $this->_salesFactory->load($orderId);
 
-        $data = [
-            'recipientEmail' => trim($this->getEmail($order)),
-            'recipientName' => $order->getCustomerName(),
-            'referenceId' => $order->getRealOrderId(),
-            'productSkus' => $this->getSkus($products),
-            'source' => 'Magento-'.$this->_productMetadata->getVersion(),
-            'pluginVersion' => $this->_version,
-            'products' => $products,
-        ];
+            $products = [];
+            try {
+                $items = $order->getAllItems();
+                foreach ($items as $i) {
+                    $product = $this->_product->load($i->getProductId());
+                    $brand = $product->getAttributeText('manufacturer');
+                    array_push(
+                        $products,
+                        [
+                            'productUrl' => $product->getProductUrl(),
+                            'name' => $product->getName(),
+                            'brand' => $brand ? $brand : '',
+                            'sku' => $product->getSku(),
+                            'imageUrl' => $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) 
+                                . 'catalog/product' . $product->getImage()
+                        ]
+                    );
+                }
+            } catch (Exception $e) {
+                // Just skipping products data if we are not able to collect it
+            }
 
-        return json_encode($data, JSON_HEX_APOS);
+            $data = [
+                'recipientEmail' => trim($this->getEmail($order)),
+                'recipientName' => $order->getCustomerName(),
+                'referenceId' => $order->getRealOrderId(),
+                'productSkus' => $this->getSkus($products),
+                'source' => 'Magento-'.$this->_productMetadata->getVersion(),
+                'pluginVersion' => $this->_version,
+                'products' => $products,
+            ];
+
+            return json_encode($data, JSON_HEX_APOS);
+        } catch (Exception $e) {
+            $error = ['message' => $e->getMessage()];
+            $data = ['error' => $error];
+            return json_encode($data, JSON_HEX_APOS);
+        }            
     }
 
     public function getSkus($products)
