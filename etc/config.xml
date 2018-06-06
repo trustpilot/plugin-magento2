@@ -5,7 +5,7 @@
            <general>
                <ApiUrl>https://invitejs.trustpilot.com/api/</ApiUrl>
                <ScriptUrl>https://invitejs.trustpilot.com/tp.min.js</ScriptUrl>
-               <WidgetUrl>http://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js</WidgetUrl>
+               <WidgetUrl>//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js</WidgetUrl>
                <key></key>
            </general>
        </trustpilotGeneral>

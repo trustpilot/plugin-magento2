@@ -20,7 +20,7 @@ class ConfigObserver implements ObserverInterface
     public function execute(EventObserver $observer)
     {
         $settings = self::getSettings();
-        $service_url = $this->_helper->getGeneralConfigValue('ApiUrl') . $settings->general->key . '/settings' ;
+        $service_url = $this->_helper->getGeneralConfigValue('ApiUrl') . $this->_helper->getGeneralConfigValue('key') . '/settings' ;
         $curl = curl_init($service_url);
         $headers = [
             'Content-Type: application/json; charset=utf-8'
@@ -43,22 +43,51 @@ class ConfigObserver implements ObserverInterface
 
     public function getSettings() 
     {
-        $general = new \stdClass();
-        $general->key = trim($this->_helper->getGeneralConfigValue('key'));;
-
-        $trustbox = new \stdClass();
-        $trustbox->enabled = trim($this->_helper->getTrustBoxConfigValue('trustbox_enable'));
-        $trustbox->locale = trim($this->_helper->getTrustBoxConfigValue('trustbox_locale'));
-        $trustbox->template = trim($this->_helper->getTrustBoxConfigValue('trustbox_template'));
-        $trustbox->position = trim($this->_helper->getTrustBoxConfigValue('trustbox_position'));
-        $trustbox->paddingx = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingx'));
-        $trustbox->paddingy = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingy'));
-
-        $settings = new \stdClass();
-        $settings->source = 'Magento2';
-        $settings->general = $general;
-        $settings->trustbox = $trustbox;
+        $globalSettings = new \stdClass();
+        $globalSettings->source         = 'Magento2';
+        $globalSettings->pluginVersion  = $this->_helper->getGeneralConfigValue('ReleaseNumber');
+        $globalSettings->magentoVersion = 'Magento-'.$this->getVersion();
+        $id = 0;
         
-        return $settings;
+        $stores = $this->getStores();
+        foreach ($stores as $store) {
+            $general = new \stdClass();
+            $general->key            = trim($this->_helper->getGeneralConfigValue('key'));
+            $general->storeId        = $store->getId();
+            $general->storeCode      = $store->getCode();
+            $general->storeName      = $store->getName();
+            $general->storeTitle     = $store->getTitle();
+            $general->storeActive    = $store->isActive();
+            $general->storeHomeUrl   = $store->getCurrentUrl();
+            $general->websiteId      = $store["website_id"];
+
+            $trustbox = new \stdClass();
+            $trustbox->enabled = trim($this->_helper->getTrustBoxConfigValue('trustbox_enable'));
+            $trustbox->locale = trim($this->_helper->getTrustBoxConfigValue('trustbox_locale'));
+            $trustbox->template = trim($this->_helper->getTrustBoxConfigValue('trustbox_template'));
+            $trustbox->position = trim($this->_helper->getTrustBoxConfigValue('trustbox_position'));
+            $trustbox->paddingx = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingx'));
+            $trustbox->paddingy = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingy'));
+    
+            $settings = new \stdClass();
+            $settings->general = $general;
+            $settings->trustbox = $trustbox;
+            
+            $globalSettings->$id = $settings;
+            $id = $id + 1;
+        }
+        return $globalSettings;
+    }
+
+    private function getVersion() {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+        return $productMetadata->getVersion();
+    }
+
+    private function getStores() {
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        $storeManager = $om->get('Magento\Store\Model\StoreManagerInterface');
+        return $storeManager->getStores($withDefault = false);
     }
 }

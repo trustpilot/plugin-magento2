@@ -3,4 +3,7 @@
     <event name="admin_system_config_changed_section_trustpilotTrustbox">
         <observer name="custom_admin_system_config_changed_section_trustpilotTrustbox" instance="Trustpilot\Reviews\Observer\ConfigObserver"/>
     </event>
+    <event name="admin_system_config_changed_section_trustpilotGeneral">
+        <observer name="custom_admin_system_config_changed_section_trustpilotTrustbox" instance="Trustpilot\Reviews\Observer\ConfigObserver"/>
+    </event>
 </config>
