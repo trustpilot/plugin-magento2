@@ -48,7 +48,7 @@ class Success extends Template
         $this->_helper = $helper;
         $this->_notifications = $notifications;
         $this->_customer = $customer;
-        $this->_version = '1.0.82';
+        $this->_version = '#{Octopus.Release.Number}';
         parent::__construct($context, $data);
     }
 
