@@ -3,4 +3,7 @@
     <referenceContainer name="header.container">
         <block class="Trustpilot\Reviews\Block\Head" name="trustpilot.header.head" as="trustpilot.header.head" template="Trustpilot_Reviews::header/head.phtml"/>
     </referenceContainer>
+    <head>
+        <css src="Trustpilot_Reviews::css/trustpilot.css"/>
+    </head>
 </page>

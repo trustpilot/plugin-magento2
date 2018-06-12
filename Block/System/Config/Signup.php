@@ -1,16 +1,28 @@
 <?php
 namespace Trustpilot\Reviews\Block\System\Config;
+
+use Magento\Config\Block\System\Config\Form\Field;
+use Magento\Backend\Block\Template\Context;
+use Trustpilot\Reviews\Helper\Data;
+use Magento\Framework\Data\Form\Element\AbstractElement;
  
-use Magento\Framework\App\Config\ScopeConfigInterface;
- 
-class Signup extends \Magento\Config\Block\System\Config\Form\Field
+class Signup extends Field
 {
-     const BUTTON_TEMPLATE = 'system/config/button/signup.phtml';
-     /**
-      * Set template to itself
-      *
-      * @return $this
-      */
+    protected $_helper;
+    protected $_signUpUrl;    
+
+    const BUTTON_TEMPLATE = 'system/config/button/signup.phtml';
+
+    public function __construct(
+        Context $context,
+        Data $helper,
+        array $data = [])
+    {
+        $this->_helper = $helper;
+        $this->_signUpUrl = $this->_helper->getGeneralConfigValue('SignUpUrl');
+        parent::__construct($context, $data);
+    }
+
     protected function _prepareLayout()
     {
         parent::_prepareLayout();
@@ -19,35 +31,27 @@ class Signup extends \Magento\Config\Block\System\Config\Form\Field
         }
         return $this;
     }
-    /**
-     * Render button
-     *
-     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
-     * @return string
-     */
-    public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+
+    public function render(AbstractElement $element)
     {
         // Remove scope label
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
         return parent::render($element);
     }
-     /**
-      * Get the button and scripts contents
-      *
-      * @return string
-      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+
+    protected function _getElementHtml(AbstractElement $element)
     {
         $this->addData(
             [
-                'id'        => 'addbutton_button',
-                'button_label'     => __('Sign up here')
+                'id'            => 'addbutton_button',
+                'button_label'  => __('Sign up here')
             ]
         );
         return $this->_toHtml();
     }
+
     public function getSignUpUrl()
     {
-        return "https://business.trustpilot.com/signup?utm_source=magentov2&utm_medium=appstore&utm_campaign=magentov2app";
+        return $this->_signUpUrl;
     }
 }

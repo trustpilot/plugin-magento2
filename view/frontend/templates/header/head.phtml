@@ -6,20 +6,19 @@
 	f.parentNode.insertBefore(a,f)})(window,document,'script', '<?php echo $block->getScriptUrl(); ?>', 'tp');
 	tp('register','<?php echo $block->getInstallationKey(); ?>');
 </script>
-<?php if($block->getTrustBoxStatus()=='enabled'): ?>
-	<script type="text/javascript" src="<?php echo $block->getWidgetScriptUrl(); ?>" async></script>
-	<script type="text/javascript" async>
-		document.addEventListener('DOMContentLoaded', function() {
-			tp('loadTrustBoxWidget', JSON.parse('<?php echo $block->getTrustBoxConfig(); ?>'));
-		});
-	</script>
+<?php if ($block->getTrustBoxStatus() === 'enabled'): ?>
+	<script type="text/javascript" src="<?php echo $block->getWgxpathUrl(); ?>"></script>
+	<script type="text/javascript"> wgxpath.install(); </script>
+
+	<script type="text/javascript" src="<?php echo $block->getWidgetScriptUrl(); ?>" async></script>	
 <?php else: ?>
-	<script type="text/javascript" async>
-		document.addEventListener('DOMContentLoaded', function() {
-			var stored = localStorage['trustBoxSettings'];
-			if (stored) {
-				localStorage.removeItem('trustBoxSettings');
-			}
-		});
+	<script type="text/javascript">
+		if (window.self !== window.top) {
+			var s = document.createElement("script");
+			s.type = "text/javascript";
+			s.src = "<?php echo $this->getWidgetScriptUrl(); ?>";
+			s.async = true;
+			document.head.append(s);
+		}
 	</script>
 <?php endif; ?>

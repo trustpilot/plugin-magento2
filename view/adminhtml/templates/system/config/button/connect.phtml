@@ -1,5 +1,10 @@
 <div class="connect-button-container">
-    <button id="<?php echo $block->getId() ?>" onclick="window.open('<?php echo $block->getConnectUrl() ?>')" type="button">
-        <span><span><span><?php echo $block->escapeHtml($block->getButtonLabel()); ?></span></span></span>
+    <button 
+        id="<?php echo $block->getId() ?>"
+        onclick="window.open('<?php echo $block->getConnectUrl() ?>')"
+        type="button">
+        <span>
+            <?php echo $block->escapeHtml($block->getButtonLabel()); ?>
+        </span>
     </button>
 </div>

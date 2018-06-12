@@ -5,18 +5,21 @@
            <general>
                <ApiUrl>https://invitejs.trustpilot.com/api/</ApiUrl>
                <ScriptUrl>https://invitejs.trustpilot.com/tp.min.js</ScriptUrl>
-               <WidgetUrl>//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js</WidgetUrl>
+               <WidgetUrl>http://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js</WidgetUrl>
+               <SignUpUrl>https://business.trustpilot.com/signup?utm_source=magentov2&amp;utm_medium=appstore&amp;utm_campaign=magentov2app</SignUpUrl>
+               <ConnectUrl>https://ecommerce-invitations.b2b.trustpilot.com/#/magento</ConnectUrl>
+               <SnippetUrl>https://businessapp.b2b.trustpilot.com/#/integrations/trustbox/library</SnippetUrl>
+               <ReleaseNumber>1.0.141</ReleaseNumber>
                <key></key>
-           </general>
+            </general>
        </trustpilotGeneral>
        <trustpilotTrustbox>
            <trustbox>
                <trustbox_enable></trustbox_enable>
-               <trustbox_locale></trustbox_locale>
-               <trustbox_template></trustbox_template>
+               <trustbox_code_snippet></trustbox_code_snippet>
+               <trustbox_page></trustbox_page>
                <trustbox_position></trustbox_position>
-               <trustbox_paddingx>30</trustbox_paddingx>
-               <trustbox_paddingy>10</trustbox_paddingy>
+               <trustbox_xpath></trustbox_xpath>
            </trustbox>
        </trustpilotTrustbox>
    </default>

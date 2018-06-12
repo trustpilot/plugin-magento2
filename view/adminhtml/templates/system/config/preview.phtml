@@ -1,0 +1,24 @@
+<input id='trustpilotTrustbox_trustbox_trustbox_xpath' name='groups[trustbox][fields][trustbox_xpath][value]' value='<?php echo $this->getXPathValue() ?>' type='hidden'>
+
+<div id="preview-container">
+    <iframe 
+        src="<?php echo $this->getPageUrl(''); ?>" 
+        data-trustpilot_trustbox_homepage="<?php echo $this->getPageUrl('trustpilot_trustbox_homepage'); ?>"
+        data-trustpilot_trustbox_category="<?php echo $this->getPageUrl('trustpilot_trustbox_category'); ?>"
+        data-trustpilot_trustbox_product="<?php echo $this->getPageUrl('trustpilot_trustbox_product'); ?>"
+        id="trustbox_preview_frame"
+        onload="injectCss();TrustpilotPreview.init();"
+        frameborder="0" 
+        width="100%" 
+        height="800">
+    </iframe>
+</div>
+<script type="text/javascript">
+    function injectCss() {
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = "<?php echo $this->getIframeCssUrl(); ?>";
+        TrustpilotPreview.getIFrame().contentDocument.head.appendChild(link);
+    }
+</script>

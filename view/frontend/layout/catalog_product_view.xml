@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceContainer name="content">
-            <block class="Trustpilot\Reviews\Block\Success" name="trustpilot.order.success" template="Trustpilot_Reviews::order/success.phtml" after="-"/>
+        <referenceContainer name="header.container">
+            <block class="Trustpilot\Reviews\Block\Trustbox" name="trustpilot_trustbox_product" as="trustpilot_trustbox_product" template="Trustpilot_Reviews::trustbox.phtml"/>
         </referenceContainer>
     </body>
 </page>
