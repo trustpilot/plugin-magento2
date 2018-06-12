@@ -5,7 +5,7 @@
            <general>
                <ApiUrl>https://invitejs.trustpilot.com/api/</ApiUrl>
                <ScriptUrl>https://invitejs.trustpilot.com/tp.min.js</ScriptUrl>
-               <WidgetUrl>http://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js</WidgetUrl>
+               <WidgetUrl>//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js</WidgetUrl>
                <SignUpUrl>https://business.trustpilot.com/signup?utm_source=magentov2&amp;utm_medium=appstore&amp;utm_campaign=magentov2app</SignUpUrl>
                <ConnectUrl>https://ecommerce-invitations.b2b.trustpilot.com/#/magento</ConnectUrl>
                <SnippetUrl>https://businessapp.b2b.trustpilot.com/#/integrations/trustbox/library</SnippetUrl>
