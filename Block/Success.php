@@ -20,8 +20,6 @@ class Success extends Template
 
     protected $_product;
 
-    protected $_version;
-
     protected $_productMetadata;
 
     protected $_helper;
@@ -48,7 +46,7 @@ class Success extends Template
         $this->_helper = $helper;
         $this->_notifications = $notifications;
         $this->_customer = $customer;
-        $this->_version = '1.0.128';
+
         parent::__construct($context, $data);
     }
 
@@ -86,7 +84,7 @@ class Success extends Template
                 'referenceId' => $order->getRealOrderId(),
                 'productSkus' => $this->getSkus($products),
                 'source' => 'Magento-'.$this->_productMetadata->getVersion(),
-                'pluginVersion' => $this->_version,
+                'pluginVersion' => $this->_helper->getGeneralConfigValue('ReleaseNumber'),
                 'products' => $products,
             ];
 

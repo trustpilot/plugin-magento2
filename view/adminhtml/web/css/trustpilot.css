@@ -1,0 +1,13 @@
+#trustpilotTrustbox_trustbox .label {
+    min-width: 200px;
+    width: auto;
+}
+
+#trustpilotTrustbox_trustbox .value {
+    width: 100%;
+}
+
+#trustpilotTrustbox_trustbox .use-default {
+    min-width: 130px;
+    width: auto;
+}

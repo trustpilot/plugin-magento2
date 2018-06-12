@@ -1,0 +1,14 @@
+@import url('trustpilot-message.css');
+
+a, input, button, select {
+    pointer-events: none;
+}
+
+.trustpilot-outline-element {
+    box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.60);
+    outline: 2px solid #00b67a;
+}
+
+#trustpilot-widget-trustbox-preview {
+    pointer-events:none; 
+}

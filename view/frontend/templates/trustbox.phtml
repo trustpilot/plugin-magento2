@@ -1,0 +1,10 @@
+<?php /* @var $block \Trustpilot\Reviews\Block\Trustbox */?>
+<?php if ($block->getTrustBoxStatus() === 'enabled'): ?>
+	<script type="text/javascript" async>
+		document.addEventListener('DOMContentLoaded', function() {
+            if (<?php echo $block->getTrustBoxPage($block->getNameInLayout()); ?>) {
+                tp('trustBox', JSON.parse('<?php echo $block->getTrustBoxConfig(); ?>'));
+            }
+        });
+	</script>
+<?php endif; ?>

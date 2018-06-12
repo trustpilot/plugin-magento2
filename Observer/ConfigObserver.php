@@ -63,8 +63,7 @@ class ConfigObserver implements ObserverInterface
 
             $trustbox = new \stdClass();
             $trustbox->enabled = trim($this->_helper->getTrustBoxConfigValue('trustbox_enable'));
-            $trustbox->locale = trim($this->_helper->getTrustBoxConfigValue('trustbox_locale'));
-            $trustbox->template = trim($this->_helper->getTrustBoxConfigValue('trustbox_template'));
+            $trustbox->snippet  = base64_encode(trim($this->_helper->getTrustBoxConfigValue('trustbox_code_snippet')));
             $trustbox->position = trim($this->_helper->getTrustBoxConfigValue('trustbox_position'));
             $trustbox->paddingx = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingx'));
             $trustbox->paddingy = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingy'));

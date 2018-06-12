@@ -1,16 +1,28 @@
 <?php
 namespace Trustpilot\Reviews\Block\System\Config;
  
-use Magento\Framework\App\Config\ScopeConfigInterface;
- 
-class Connect extends \Magento\Config\Block\System\Config\Form\Field
+use Magento\Config\Block\System\Config\Form\Field;
+use Magento\Backend\Block\Template\Context;
+use Trustpilot\Reviews\Helper\Data;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+
+class Connect extends Field
 {
-     const BUTTON_TEMPLATE = 'system/config/button/connect.phtml';
-     /**
-      * Set template to itself
-      *
-      * @return $this
-      */
+    protected $_helper;
+    protected $_connectUrl;
+
+    const BUTTON_TEMPLATE = 'system/config/button/connect.phtml';
+
+    public function __construct(
+        Context $context,
+        Data $helper,
+        array $data = [])
+    {
+        $this->_helper = $helper;
+        $this->_connectUrl = $this->_helper->getGeneralConfigValue('ConnectUrl');
+        parent::__construct($context, $data);
+    }
+
     protected function _prepareLayout()
     {
         parent::_prepareLayout();
@@ -19,35 +31,27 @@ class Connect extends \Magento\Config\Block\System\Config\Form\Field
         }
         return $this;
     }
-    /**
-     * Render button
-     *
-     * @param  \Magento\Framework\Data\Form\Element\AbstractElement $element
-     * @return string
-     */
-    public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+
+    public function render(AbstractElement $element)
     {
         // Remove scope label
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
         return parent::render($element);
     }
-     /**
-      * Get the button and scripts contents
-      *
-      * @return string
-      */
-    protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+
+    protected function _getElementHtml(AbstractElement $element)
     {
         $this->addData(
             [
-                'id'        => 'conect_button',
-                'button_label'     => __('Get installation key')
+                'id'            => 'conect_button',
+                'button_label'  => __('Get installation key')
             ]
         );
         return $this->_toHtml();
     }
+    
     public function getConnectUrl()
     {
-        return "https://ecommerce-invitations.b2b.trustpilot.com/#/magento";
+        return $this->_connectUrl;
     }
 }

@@ -18,4 +18,18 @@ class Data extends AbstractHelper
     {
         return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_TRUSTBOX . $value, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
+
+    public function getTrustBoxConfig()
+    {
+        $snippet  = trim($this->getTrustBoxConfigValue('trustbox_code_snippet'));
+        $position = trim($this->getTrustBoxConfigValue('trustbox_position'));
+        $xpath    = trim($this->getTrustBoxConfigValue('trustbox_xpath')); 
+
+        $data = [
+            'snippet'  => base64_encode($snippet),
+            'position' => $position,
+            'xpath'    => base64_encode($xpath)
+        ];
+        return $data;
+    }
 }
