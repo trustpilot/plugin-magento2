@@ -5,7 +5,6 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Backend\Block\Template\Context;
 use Trustpilot\Reviews\Helper\Data;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 
@@ -20,13 +19,12 @@ class Preview extends Field
     public function __construct(
         Context $context,
         Data $helper,
-        StoreManagerInterface $storeManager,
         CategoryCollectionFactory $categoryCollectionFactory,
         ProductCollectionFactory $productCollectionFactory,
         array $data = [])
     {
         $this->_helper                      = $helper;
-        $this->_storeManager                = $storeManager;
+        $this->_storeManager                = $context->getStoreManager();
         $this->_categoryCollectionFactory   = $categoryCollectionFactory;
         $this->_productCollectionFactory    = $productCollectionFactory;
         parent::__construct($context, $data);

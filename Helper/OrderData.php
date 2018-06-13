@@ -71,7 +71,7 @@ class OrderData extends AbstractHelper
                     ]
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // Just skipping products data if we are not able to collect it
         }
         return $products;

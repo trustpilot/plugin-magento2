@@ -66,7 +66,7 @@ class OrderSaveObserver implements ObserverInterface
                 $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
             }
             return;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $error = ['message' => $e->getMessage()];
             $data = ['error' => $error];
             $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);

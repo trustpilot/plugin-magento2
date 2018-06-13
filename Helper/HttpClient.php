@@ -33,7 +33,7 @@ class HttpClient extends AbstractHelper
                 $response['data'] = $responseData;
             }
             return $response;
-        } catch (Exception $e){
+        } catch (\Exception $e){
             //intentionally empty
         }
     }

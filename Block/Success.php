@@ -74,7 +74,7 @@ class Success extends Template
                         ]
                     );
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 // Just skipping products data if we are not able to collect it
             }
 
@@ -89,7 +89,7 @@ class Success extends Template
             ];
 
             return json_encode($data, JSON_HEX_APOS);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $error = ['message' => $e->getMessage()];
             $data = ['error' => $error];
             return json_encode($data, JSON_HEX_APOS);

@@ -27,12 +27,10 @@ class TrustpilotPreview {
 
                 if (target.tagName !== 'HTML' && target.tagName !== 'BODY') {
                     const div = target.closest('div');
+                    TrustpilotPreview.removeTrustBox(iframe.contentDocument);
                     let {xpath, error} = TrustpilotPreview.getXPath(div);
-                    if (xpath !== field.value) {
-                        TrustpilotPreview.removeTrustBox(iframe.contentDocument);
-                        field.value = xpath;
-                        TrustpilotPreview.renderTrustBox(field.value, iframe, error);
-                    }
+                    field.value = xpath;
+                    TrustpilotPreview.renderTrustBox(field.value, iframe, error);
                 }
             };
         }
