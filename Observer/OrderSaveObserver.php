@@ -51,7 +51,7 @@ class OrderSaveObserver implements ObserverInterface
                 'orderStatusName' => $order->getStatusLabel(),
                 'hook' => 'sales_order_save_after'
             ];
-            if ($orderStatusId == \Magento\Sales\Model\Order::STATE_NEW) {
+            if ($orderStatusId == \Magento\Sales\Model\Order::STATE_NEW || $orderStatus == null) {
                     $data['recipientEmail'] = trim($this->_orderDataHelper->getEmail($order));
                     $data['recipientName'] = $order->getCustomerName();
                 $response = $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
