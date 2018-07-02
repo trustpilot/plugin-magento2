@@ -7,13 +7,17 @@
 	tp('register','<?php echo $block->getInstallationKey(); ?>');
 </script>
 <?php if ($block->getTrustBoxStatus() === 'enabled'): ?>
-	<script type="text/javascript" src="<?php echo $block->getWgxpathUrl(); ?>"></script>
-	<script type="text/javascript"> wgxpath.install(); </script>
-
-	<script type="text/javascript" src="<?php echo $block->getWidgetScriptUrl(); ?>" async></script>	
+	<script type="text/javascript" onload="wgxpath.install();" src="<?php echo $block->getWgxpathUrl(); ?>" ></script>
+  	<script type="text/javascript" src="<?php echo $block->getWidgetScriptUrl(); ?>" async></script>	
 <?php else: ?>
 	<script type="text/javascript">
 		if (window.self !== window.top) {
+			var w = document.createElement("script");
+  			w.type = "text/javascript";
+ 			w.onload = "wgxpath.install();";
+  			w.src = "<?php echo $block->getWgxpathUrl(); ?>";
+  			document.head.append(w);
+
 			var s = document.createElement("script");
 			s.type = "text/javascript";
 			s.src = "<?php echo $this->getWidgetScriptUrl(); ?>";

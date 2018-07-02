@@ -1,3 +1,5 @@
+@import url('trustpilot-message.css');
+
 #trustpilotTrustbox_trustbox .label {
     min-width: 200px;
     width: auto;
@@ -10,4 +12,113 @@
 #trustpilotTrustbox_trustbox .use-default {
     min-width: 130px;
     width: auto;
+}
+
+#preview-container {
+    position: relative;
+}
+
+.load-spinner {
+    height:20px;
+    width:110px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    z-index: 9999;
+}
+
+.one    { animation: spinner-one-animation .9s infinite; }
+.two    { animation: spinner-two-animation .9s infinite; }
+.three  { animation: spinner-three-animation .9s infinite; }
+.four   { animation: spinner-four-animation .9s infinite; }
+.five   { animation: spinner-five-animation .9s infinite; }
+
+.one, .two, .three, .four, .five {
+    will-change: opacity;
+    position: relative;
+    float: left;
+    height: 100%;
+    width: 18%;
+    margin-left: 2%;
+    background-image: url("//cdn.trustpilot.net/brand-assets/1.0.3/single-star-5.svg");
+    background-color: #13b57a;
+    background-position: center center;
+    background-size: 110% 110%;
+    background-repeat: no-repeat;
+    border-radius: 10%;
+    transition: opacity, 0.3s ease-in-out;
+    opacity: 0;
+}
+
+@keyframes spinner-one-animation {
+    0%   { opacity: 1; }
+    12%  { opacity: 1; }
+    25%  { opacity: 1; }
+    36%  { opacity: 1; }
+    49%  { opacity: 0; }
+    61%  { opacity: 0; }
+    74%  { opacity: 0; }
+    86%  { opacity: 0; }
+    99%  { opacity: 0; }
+}
+
+@keyframes spinner-two-animation {
+    0%   { opacity: 0; }
+    12%  { opacity: 1; }
+    25%  { opacity: 1; }
+    36%  { opacity: 1; }
+    49%  { opacity: 1; }
+    61%  { opacity: 0; }
+    74%  { opacity: 0; }
+    86%  { opacity: 0; }
+    99%  { opacity: 0; }
+}
+
+@keyframes spinner-three-animation {
+    0%   { opacity: 0; }
+    12%  { opacity: 0; }
+    25%  { opacity: 1; }
+    36%  { opacity: 1; }
+    49%  { opacity: 1; }
+    61%  { opacity: 1; }
+    74%  { opacity: 0; }
+    86%  { opacity: 0; }
+    99%  { opacity: 0; }
+}
+
+@keyframes spinner-four-animation {
+    0%   { opacity: 0; }
+    12%  { opacity: 0; }
+    25%  { opacity: 0; }
+    36%  { opacity: 1; }
+    49%  { opacity: 1; }
+    61%  { opacity: 1; }
+    74%  { opacity: 1; }
+    86%  { opacity: 0; }
+    99%  { opacity: 0; }
+}
+
+@keyframes spinner-five-animation {
+    0%   { opacity: 0; }
+    12%  { opacity: 0; }
+    25%  { opacity: 0; }
+    36%  { opacity: 0; }
+    49%  { opacity: 1; }
+    61%  { opacity: 1; }
+    74%  { opacity: 1; }
+    86%  { opacity: 1; }
+    99%  { opacity: 0; }
+}
+
+.ls-backdrop {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9999;
+    background-color: rgba(0,0,0,0.4);
 }

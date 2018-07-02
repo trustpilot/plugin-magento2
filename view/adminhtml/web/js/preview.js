@@ -1,27 +1,42 @@
 class TrustpilotPreview {
-    static init() {
+    static toggleSpinners(on = true) {
+            const spinner = document.getElementById("preview-spinner");
+            if (spinner) {
+                spinner.style.display = (on) ? "block" : "none";
+            }  
+    }
+
+    static init(cssUrl) {
         const field = TrustpilotPreview.getXPathField();
         const iframe = TrustpilotPreview.getIFrame();
         const trustboxField = TrustpilotPreview.getTrustboxField();
         if (iframe && field) {
+            TrustpilotPreview.injectCss(iframe.contentDocument, cssUrl);
             // mark selected
             if (field.value) {
                 const el = TrustpilotPreview.getElementByXPath(field.value, iframe.contentDocument);
                 TrustpilotPreview.removeTrustBox(iframe.contentDocument);
                 TrustpilotPreview.renderTrustBox(field.value, iframe);
             }
+            let target;
             const iframeWin = iframe.contentWindow;
             iframeWin.onmouseover = function (e) {
-                const target = TrustpilotPreview.getTarget(TrustpilotPreview.getEvent(e));
-                TrustpilotPreview.toggleClass(true, target.closest('div'), TrustpilotElements.OUTLINE_CLASS_NAME);
+                target = TrustpilotPreview.getTarget(TrustpilotPreview.getEvent(e));
+                TrustpilotPreview.toggleOverlay(true, target.closest('div'));
             };
             iframeWin.onmouseout = function (e) {
-                const target = TrustpilotPreview.getTarget(TrustpilotPreview.getEvent(e));
-                TrustpilotPreview.toggleClass(false, target.closest('div'), TrustpilotElements.OUTLINE_CLASS_NAME);
+                target = TrustpilotPreview.getTarget(TrustpilotPreview.getEvent(e));
+                TrustpilotPreview.toggleOverlay(false, target.closest('div'));
             };
+            iframeWin.onscroll = function () {
+                if (target) {
+                    TrustpilotPreview.toggleOverlay(false, target.closest('div'));
+                    TrustpilotPreview.toggleOverlay(true, target.closest('div'));
+                }
+            }
             iframeWin.onclick = function (e) {
                 const event = TrustpilotPreview.getEvent(e);
-                const target = TrustpilotPreview.getTarget(event);
+                target = TrustpilotPreview.getTarget(event);
 
                 event.preventDefault();
 
@@ -35,6 +50,15 @@ class TrustpilotPreview {
             };
         }
         TrustpilotPreview.setVisibility();
+        TrustpilotPreview.toggleSpinners(false);
+    }
+
+    static injectCss(doc, cssUrl) {
+        const link = doc.createElement('link');
+        link.setAttribute('type', 'text/css');
+        link.setAttribute('rel', 'stylesheet');
+        link.setAttribute('href', cssUrl);
+        doc.head.appendChild(link);
     }
 
     static getIFrame() {
@@ -104,7 +128,7 @@ class TrustpilotPreview {
         });
     }
 
-    static getErrorBox(message){
+    static getErrorBox(message) {
         const trustboxMessageBox = document.createElement('div');
         var code = `<div class="trustbox-message-box shake-and-hide-element">
                         <div class="fa fa-warning warning-icon"></div>
@@ -146,15 +170,31 @@ class TrustpilotPreview {
         }
     }
 
-    static toggleClass(toggle, e, c) {
-        if (e && c) {
-            if (e.className && e.className.split(' ').includes('trustpilot-widget')) return;
+    static createOverlayDiv(el) {
+        const rect = el.getBoundingClientRect();
+        var div = document.createElement('div');
+        div.addClassName('trustpilot-overlay');
+        div.setAttribute("style", `left:${rect.left}px; top:${rect.top}px; width:${rect.width}px; height:${rect.height}px;`);
+        return div;
+    }
+
+    static toggleOverlay(toggle, e) {
+        if(e) {
             if (toggle) {
-                e.classList.add(c);
+                const div = TrustpilotPreview.createOverlayDiv(e);
+                e.appendChild(div);
+                return;
             } else {
-                e.classList.remove(c);
+                let children = e.children;
+                for (let i = 0; i < children.length; i++) {
+                    if (children[i].className && children[i].className.split(' ').includes('trustpilot-overlay')) {
+                        e.removeChild(children[i]);
+                        return;
+                    }
+                }
             }
         }
+        return;
     }
 
     static getXPath(el, isInForm = false) {
@@ -245,8 +285,6 @@ class TrustpilotPreview {
 
         if (trustboxValue === 'disabled' || tbcs.value === '' || (pageFieldInherited && pageFieldInherited.checked)) {
             (TrustpilotPreview.getPageField()).disabled = 'disabled';
-            const iframe = TrustpilotPreview.getIFrame();
-
         } else {
             (TrustpilotPreview.getPageField()).removeAttribute('disabled');
             const iframe = TrustpilotPreview.getIFrame();
@@ -281,5 +319,6 @@ class TrustpilotPreview {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    TrustpilotPreview.toggleSpinners(true);
     TrustpilotPreview.bindEventHandler();
 });

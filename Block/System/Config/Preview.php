@@ -47,26 +47,42 @@ class Preview extends Field
 
     public function getPageUrl($page)
     {
-        $value = (isset($page) && !empty($page)) ? $page : $this->_helper->getTrustBoxConfigValue('trustbox_page');
-        switch ($value) {
-                case 'trustpilot_trustbox_homepage':
-                    return $this->_storeManager->getStore()->getBaseUrl();
-                case 'trustpilot_trustbox_category':
-                    $collection = $this->_categoryCollectionFactory->create();
-                    $collection->addAttributeToSelect('*');
-                    $collection->addAttributeToFilter('is_active', 1);
-                    $collection->addAttributeToFilter('children_count', 0);
-                    $category = $collection->getFirstItem();
-                    return $category->getUrl();
-                case 'trustpilot_trustbox_product':
-                    $collection = $this->_productCollectionFactory->create();
-                    $collection->addAttributeToSelect('*');
-                    $collection->addAttributeToFilter('status', 1);
-                    $collection->addAttributeToFilter('visibility', array(2, 3, 4));
-                    $product = $collection->getFirstItem();
-                    return $product->getProductUrl();
-                default:
-                    return $this->_storeManager->getStore()->getBaseUrl();
+        try {
+            $storeId = $this->_helper->getWebsiteOrStoreId();
+            $value = (isset($page) && !empty($page)) ? $page : $this->_helper->getTrustBoxConfigValue('trustbox_page');        
+            switch ($value) {
+                    case 'trustpilot_trustbox_homepage':
+                        return $this->_storeManager->getStore($storeId)->getUrl();
+                    case 'trustpilot_trustbox_category':
+                        $collection = $this->_categoryCollectionFactory->create();
+                        $collection->addAttributeToSelect('*');
+                        $collection->setStore($storeId);
+                        $collection->addAttributeToFilter('is_active', 1);
+                        $collection->addAttributeToFilter('children_count', 0);
+                        $category = $collection->getFirstItem();
+                        $storeCode = $this->_storeManager->getStore($storeId)->getCode();
+                        $productUrl = strtok($category->getUrl(),'?').'?___store='.$storeCode;
+                        return $productUrl;
+                    case 'trustpilot_trustbox_product':
+                        $collection = $this->_productCollectionFactory->create();
+                        $collection->addAttributeToSelect('*');
+                        $collection->setStore($storeId);
+                        $collection->addAttributeToFilter('status', 1);
+                        $collection->addAttributeToFilter('visibility', array(2, 3, 4));
+                        $product = $collection->getFirstItem();
+                        $storeCode = $this->_storeManager->getStore($storeId)->getCode();
+                        $productUrl = strtok($product->setStoreId($storeId)->getUrlInStore(),'?').'?___store='.$storeCode;
+                        return $productUrl;
+                    default:
+                        return $this->_storeManager->getStore($storeId)->getUrl();
+            }
+        } catch (\Exception $e) {
+            if (empty($value)) {
+                $this->_logger->debug('Error: ' . $e->getMessage());
+            } else {
+                $this->_logger->debug('Unable to find URL for a page ' . $value . '. Error: ' . $e->getMessage());
+            }
+            return $this->_storeManager->getStore()->getBaseUrl();
         }
     }
 }

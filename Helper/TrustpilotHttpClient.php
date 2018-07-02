@@ -43,4 +43,20 @@ class TrustpilotHttpClient extends AbstractHelper
         );
         return $response;
     }
+
+    public function postSettings($integrationKey, $data)
+    {
+        $this->_apiUrl = $this->_dataHelper->getGeneralConfigValue('ApiUrl');
+        $url = $this->_apiUrl . $integrationKey . '/settings';
+        $httpRequest = "POST";
+        $origin = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        $response = $this->_httpClient->request(
+            $url,
+            $httpRequest,
+            $origin,
+            $data
+        );
+        return $response;
+    }
+
 }

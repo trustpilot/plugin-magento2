@@ -26,26 +26,16 @@
             <group id="signup" translate="label" showInDefault="0" showInWebsite="1" showInStore="1">
                 <attribute type="expanded">1</attribute>
                 <label>Don’t have an installation key yet?</label>
-                <field id="create_user_website" translate="label" showInDefault="0" showInWebsite="1" showInStore="0">
+                <field id="create_user" translate="label" showInDefault="0" showInWebsite="1" showInStore="1">
                     <frontend_model>Trustpilot\Reviews\Block\System\Config\Signup</frontend_model>
                     <label>Step 1:</label>
                     <comment>Create a new Trustpilot Business account.</comment>
-                </field>
-                <field id="create_user_store" translate="label" showInDefault="0" showInWebsite="0" showInStore="1">
-                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Signup</frontend_model>
-                    <label>Step 1:</label>
-                    <comment>Create a new Trustpilot Business account.</comment>
-                </field>
-                <field id="get_key_website" translate="label" showInDefault="0" showInWebsite="1" showInStore="0">
+                </field>                
+                <field id="get_key" translate="label" showInDefault="0" showInWebsite="1" showInStore="1">
                     <frontend_model>Trustpilot\Reviews\Block\System\Config\Connect</frontend_model>
                     <label>Step 2:</label>
                     <comment>Connect your Magento store to Trustpilot.</comment>
-                </field>
-                <field id="get_key_store" translate="label" showInDefault="0" showInWebsite="0" showInStore="1">
-                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Connect</frontend_model>
-                    <label>Step 2:</label>
-                    <comment>Connect your Magento store to Trustpilot.</comment>
-                </field>
+                </field>                
             </group>
         </section>
         <section id="trustpilotTrustbox" translate="label" sortOrder="131" showInDefault="0" showInWebsite="1" showInStore="1"> 
@@ -64,7 +54,7 @@
                     <comment>HTML code of the TrustBox from Trustpilot integrations page.</comment>
                     <validate>required-entry validate-trustpilot-script</validate>
                 </field>
-                <field id="get_snippet_button" translate="label" type="button" showInDefault="0" showInWebsite="1" showInStore="0">
+                <field id="get_snippet_button" translate="label" type="button" showInDefault="0" showInWebsite="1" showInStore="1">
                     <frontend_model>Trustpilot\Reviews\Block\System\Config\Snippet</frontend_model>
                 </field>
                 <field id="trustbox_page" translate="label" type="select" showInDefault="0" showInWebsite="1" showInStore="1">

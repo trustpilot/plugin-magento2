@@ -3,21 +3,69 @@
 namespace Trustpilot\Reviews\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\Helper\Context;
+use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 
 class Data extends AbstractHelper
 {
+
     const XML_PATH_TRUSTPILOT_GENERAL = 'trustpilotGeneral/general/';
     const XML_PATH_TRUSTPILOT_TRUSTBOX = 'trustpilotTrustbox/trustbox/';
 
+    protected $_request;
+
+    public function __construct(Context $context)
+    {
+        parent::__construct($context);
+        $this->_request = $context->getRequest();
+    }
+
     public function getGeneralConfigValue($value)
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_GENERAL . $value, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        if ($this->getWebsiteOrStoreId()) {
+            return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_GENERAL . $value, $this->getScope(), $this->getWebsiteOrStoreId());
+        }
+        return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_GENERAL . $value, StoreScopeInterface::SCOPE_STORE);
     }
     
     public function getTrustBoxConfigValue($value)
     {
-        return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_TRUSTBOX . $value, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        if ($this->getWebsiteOrStoreId()) {
+            return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_TRUSTBOX . $value, $this->getScope(), $this->getWebsiteOrStoreId());
+        }
+        return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_TRUSTBOX . $value, StoreScopeInterface::SCOPE_STORE);
     }
+
+    public function getTrustboxConfigValueByStore($value, $storeId)
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_TRUSTBOX . $value, StoreScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    public function getGeneralConfigValueByStore($value, $storeId)
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_TRUSTPILOT_GENERAL . $value, StoreScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    public function getWebsiteOrStoreId() 
+    {
+        if ($this->_request->getParam('store')) {
+            return (int) $this->_request->getParam('store', 0);
+        } else if ($this->_request->getParam('website')) {
+            return (int) $this->_request->getParam('website', 0);
+        }
+        return 0;
+    }
+
+    public function getScope()
+    {
+        return $this->_request->getParam('store') ? StoreScopeInterface::SCOPE_STORE : 
+        ($this->_request->getParam('website') ? StoreScopeInterface::SCOPE_WEBSITE : 
+        ScopeConfigInterface::SCOPE_TYPE_DEFAULT);
+    }
+    
+
 
     public function getTrustBoxConfig()
     {

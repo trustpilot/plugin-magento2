@@ -1,4 +1,9 @@
-<input id='trustpilotTrustbox_trustbox_trustbox_xpath' name='groups[trustbox][fields][trustbox_xpath][value]' value='<?php echo $this->getXPathValue() ?>' type='hidden'>
+<input 
+    id='trustpilotTrustbox_trustbox_trustbox_xpath' 
+    name='groups[trustbox][fields][trustbox_xpath][value]' 
+    value='<?php echo $this->getXPathValue() ?>' 
+    type='hidden'
+/>
 
 <div id="preview-container">
     <iframe 
@@ -7,18 +12,40 @@
         data-trustpilot_trustbox_category="<?php echo $this->getPageUrl('trustpilot_trustbox_category'); ?>"
         data-trustpilot_trustbox_product="<?php echo $this->getPageUrl('trustpilot_trustbox_product'); ?>"
         id="trustbox_preview_frame"
-        onload="injectCss();TrustpilotPreview.init();"
+        onload="TrustpilotPreview.init('<?php echo $this->getIframeCssUrl(); ?>');"
         frameborder="0" 
         width="100%" 
         height="800">
     </iframe>
+    <div id="preview-spinner">
+        <div class="load-spinner">
+            <div class="one"></div>
+            <div class="two"></div>
+            <div class="three"></div>
+            <div class="four"></div>
+            <div class="five"></div>
+        </div>
+        <div class="ls-backdrop"></div>
+    <div>
 </div>
-<script type="text/javascript">
-    function injectCss() {
-        var link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.type = "text/css";
-        link.href = "<?php echo $this->getIframeCssUrl(); ?>";
-        TrustpilotPreview.getIFrame().contentDocument.head.appendChild(link);
-    }
+
+<div id="preview-message">
+    <div class="trustbox-message-box shake-element">
+        <div class="fa fa-warning warning-icon"></div>
+        <div class="trustbox-message-text">
+            <?php echo __('You will not be able to setup TrustBox as your current browser do not support modern HTML features'); ?>
+        </div>
+    </div>
+</div>
+
+<script>
+    require(['bowser'], function(bowser) {
+        if (bowser && bowser.msie && bowser.version <= 11) {
+            document.getElementById('preview-container').style.display = 'none';
+            document.getElementById('preview-message').style.display = 'block';
+        } else {
+            document.getElementById('preview-container').style.display = 'block';
+            document.getElementById('preview-message').style.display = 'none';       
+        }
+    });
 </script>

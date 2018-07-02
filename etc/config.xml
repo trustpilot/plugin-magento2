@@ -9,7 +9,7 @@
                <SignUpUrl>https://business.trustpilot.com/signup?utm_source=magentov2&amp;utm_medium=appstore&amp;utm_campaign=magentov2app</SignUpUrl>
                <ConnectUrl>https://ecommerce-invitations.b2b.trustpilot.com/#/magento</ConnectUrl>
                <SnippetUrl>https://businessapp.b2b.trustpilot.com/#/integrations/trustbox/library</SnippetUrl>
-               <ReleaseNumber>1.0.141</ReleaseNumber>
+               <ReleaseNumber>1.0.189</ReleaseNumber>
                <key></key>
             </general>
        </trustpilotGeneral>

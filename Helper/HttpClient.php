@@ -63,7 +63,8 @@ class HttpClient extends AbstractHelper
         return;
     }
 
-    private function buildParams($url, $params = array()){
+    private function buildParams($url, $params = array())
+    {
         if (!empty($params) && is_array($params)) {
             $url .= '?'.http_build_query($params);
         }

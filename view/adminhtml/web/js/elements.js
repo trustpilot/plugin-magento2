@@ -8,6 +8,5 @@ const TrustpilotElements = {
     POSITION_FIELD_ID_INHERIT                   : 'trustpilotTrustbox_trustbox_trustbox_position_inherit',
     PAGE_FIELD_ID                               : 'trustpilotTrustbox_trustbox_trustbox_page',
     PAGE_FIELD_ID_INHERIT                       : 'trustpilotTrustbox_trustbox_trustbox_page_inherit',
-    TRUSTBOX_FIELD_ID                           : 'trustpilotTrustbox_trustbox_trustbox_enable',
-    OUTLINE_CLASS_NAME                          : 'trustpilot-outline-element'
+    TRUSTBOX_FIELD_ID                           : 'trustpilotTrustbox_trustbox_trustbox_enable'
 }

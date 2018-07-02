@@ -5,40 +5,29 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 use \Psr\Log\LoggerInterface;
 use Trustpilot\Reviews\Helper\Data;
+use Trustpilot\Reviews\Helper\TrustpilotHttpClient;
 
 class ConfigObserver implements ObserverInterface
 {
     private $_helper;
     private $_logger;
+    private $_trustpilotHttpClient;
 
-    public function __construct(LoggerInterface $logger, Data $helper)
+    public function __construct(
+        LoggerInterface $logger,
+        TrustpilotHttpClient $trustpilotHttpClient,
+        Data $helper)
     {
         $this->_logger = $logger;
         $this->_helper = $helper;
+        $this->_trustpilotHttpClient = $trustpilotHttpClient;
     }
 
     public function execute(EventObserver $observer)
     {
+        $key = $this->_helper->getGeneralConfigValue('key');
         $settings = self::getSettings();
-        $service_url = $this->_helper->getGeneralConfigValue('ApiUrl') . $this->_helper->getGeneralConfigValue('key') . '/settings' ;
-        $curl = curl_init($service_url);
-        $headers = [
-            'Content-Type: application/json; charset=utf-8'
-        ];
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($settings));
-        $curl_response = curl_exec($curl);
-        if ($curl_response === false) {
-            $info = curl_getinfo($curl);
-            $this->_logger->error('error occured during curl exec. Additioanl info: ' . json_encode($info));
-        }
-        curl_close($curl);
-        $decoded = json_decode($curl_response);
-        if (isset($decoded->response->status) && $decoded->response->status == 'ERROR') {
-            $this->_logger->error('error occured: ' . $decoded->response->errormessage);
-        }
+        $this->_trustpilotHttpClient->postSettings($key, $settings);
     }
 
     public function getSettings() 
@@ -48,7 +37,6 @@ class ConfigObserver implements ObserverInterface
         $globalSettings->pluginVersion  = $this->_helper->getGeneralConfigValue('ReleaseNumber');
         $globalSettings->magentoVersion = 'Magento-'.$this->getVersion();
         $id = 0;
-        
         $stores = $this->getStores();
         foreach ($stores as $store) {
             $general = new \stdClass();
@@ -62,11 +50,11 @@ class ConfigObserver implements ObserverInterface
             $general->websiteId      = $store["website_id"];
 
             $trustbox = new \stdClass();
-            $trustbox->enabled = trim($this->_helper->getTrustBoxConfigValue('trustbox_enable'));
-            $trustbox->snippet  = base64_encode(trim($this->_helper->getTrustBoxConfigValue('trustbox_code_snippet')));
-            $trustbox->position = trim($this->_helper->getTrustBoxConfigValue('trustbox_position'));
-            $trustbox->paddingx = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingx'));
-            $trustbox->paddingy = trim($this->_helper->getTrustBoxConfigValue('trustbox_paddingy'));
+            $trustbox->enabled  = trim($this->_helper->getTrustboxConfigValueByStore('trustbox_enable', $store->getId()));
+            $trustbox->snippet  = base64_encode(trim($this->_helper->getTrustboxConfigValueByStore('trustbox_code_snippet', $store->getId())));
+            $trustbox->position = trim($this->_helper->getTrustboxConfigValueByStore('trustbox_position', $store->getId()));
+            $trustbox->xpath    = base64_encode(trim($this->_helper->getTrustboxConfigValueByStore('trustbox_xpath', $store->getId())));
+            $trustbox->page     = trim($this->_helper->getTrustboxConfigValueByStore('trustbox_page', $store->getId()));
     
             $settings = new \stdClass();
             $settings->general = $general;
@@ -75,6 +63,7 @@ class ConfigObserver implements ObserverInterface
             $globalSettings->$id = $settings;
             $id = $id + 1;
         }
+        
         return $globalSettings;
     }
 
