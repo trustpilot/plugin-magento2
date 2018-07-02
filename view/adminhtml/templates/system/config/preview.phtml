@@ -6,6 +6,7 @@
 />
 
 <div id="preview-container">
+    <script src="<?php echo $this->getPreviewUrl(); ?>js/preview.js"></script>
     <iframe 
         src="<?php echo $this->getPageUrl(''); ?>" 
         data-trustpilot_trustbox_homepage="<?php echo $this->getPageUrl('trustpilot_trustbox_homepage'); ?>"

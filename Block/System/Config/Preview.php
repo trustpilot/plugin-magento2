@@ -15,6 +15,7 @@ class Preview extends Field
     protected $_categoryCollectionFactory;
     protected $_productCollectionFactory;
     protected $_template = 'system/config/preview.phtml';
+    protected $_previewUrl;
 
     public function __construct(
         Context $context,
@@ -27,6 +28,7 @@ class Preview extends Field
         $this->_storeManager                = $context->getStoreManager();
         $this->_categoryCollectionFactory   = $categoryCollectionFactory;
         $this->_productCollectionFactory    = $productCollectionFactory;
+        $this->_previewUrl                  = $this->_helper->getGeneralConfigValue('PreviewUrl');
         parent::__construct($context, $data);
     }
 
@@ -43,6 +45,11 @@ class Preview extends Field
     public function getIframeCssUrl()
     {
         return $this->getViewFileUrl('Trustpilot_Reviews::css/trustpilot-iframe.css');
+    }
+
+    public function getPreviewUrl()
+    {
+        return $this->_previewUrl;
     }
 
     public function getPageUrl($page)
