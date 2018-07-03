@@ -67,11 +67,12 @@ class Preview extends Field
                 case ScopeInterface::SCOPE_TYPE_DEFAULT:
                     break;
             }
+            $storeCode = $this->_storeManager->getStore($storeId)->getCode();
 
             $value = (isset($page) && !empty($page)) ? $page : $this->_helper->getTrustBoxConfigValue('trustbox_page');
             switch ($value) {
                 case 'trustpilot_trustbox_homepage':
-                    return $this->_storeManager->getStore($storeId)->getBaseUrl();
+                    return $this->_storeManager->getStore($storeId)->getBaseUrl().'?___store='.$storeCode;
                 case 'trustpilot_trustbox_category':
                     $collection = $this->_categoryCollectionFactory->create();
                     $collection->addAttributeToSelect('*');
@@ -79,7 +80,6 @@ class Preview extends Field
                     $collection->addAttributeToFilter('is_active', 1);
                     $collection->addAttributeToFilter('children_count', 0);
                     $category = $collection->getFirstItem();
-                    $storeCode = $this->_storeManager->getStore($storeId)->getCode();
                     $productUrl = strtok($category->getUrl(),'?').'?___store='.$storeCode;
                     return $productUrl;
                 case 'trustpilot_trustbox_product':
@@ -89,7 +89,6 @@ class Preview extends Field
                     $collection->addAttributeToFilter('status', 1);
                     $collection->addAttributeToFilter('visibility', array(2, 3, 4));
                     $product = $collection->getFirstItem();
-                    $storeCode = $this->_storeManager->getStore($storeId)->getCode();
                     $productUrl = strtok($product->setStoreId($storeId)->getUrlInStore(),'?').'?___store='.$storeCode;
                     return $productUrl;
                 default:
