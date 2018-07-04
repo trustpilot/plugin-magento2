@@ -53,7 +53,7 @@ class OrderSaveObserver implements ObserverInterface
             ];
             if ($orderStatusId == \Magento\Sales\Model\Order::STATE_NEW || $orderStatusId == null) {
                     $data['recipientEmail'] = trim($this->_orderDataHelper->getEmail($order));
-                    $data['recipientName'] = $order->getCustomerName();
+                    $data['recipientName'] = trim($this->_orderDataHelper->getName($order));;
                 $response = $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
                 if ($response['code'] == __ACCEPTED__) {
                     $products = $this->_orderDataHelper->getProducts($order);

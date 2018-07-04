@@ -4,48 +4,37 @@ namespace Trustpilot\Reviews\Block;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order;
 use Magento\Checkout\Model\Session;
-use Magento\Catalog\Model\Product;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\App\ProductMetadataInterface;
 use Trustpilot\Reviews\Helper\Data;
 use Trustpilot\Reviews\Helper\Notifications;
-use Magento\Customer\Model\Customer;
+use Trustpilot\Reviews\Helper\OrderData;
 
 class Success extends Template
 {
     protected $_salesFactory;
-
     protected $_checkoutSession;
-
-    protected $_product;
-
     protected $_productMetadata;
-
     protected $_helper;
-
+    protected $_orderDataHelper;
     protected $_notifications;
-
-    protected $_customer;
 
     public function __construct(
         Context $context,
         Order $salesOrderFactory,
         Session $checkoutSession,
-        Product $product,
         ProductMetadataInterface $productMetadata,
         Data $helper,
+        OrderData $orderDataHelper,
         Notifications $notifications,
-        Customer $customer,
         array $data = []
     ) {
         $this->_salesFactory = $salesOrderFactory;
         $this->_checkoutSession = $checkoutSession;
-        $this->_product = $product;
         $this->_productMetadata = $productMetadata;
         $this->_helper = $helper;
+        $this->_orderDataHelper = $orderDataHelper;
         $this->_notifications = $notifications;
-        $this->_customer = $customer;
 
         parent::__construct($context, $data);
     }
@@ -55,34 +44,13 @@ class Success extends Template
         try {
             $orderId = $this->_checkoutSession->getLastOrderId();
             $order   = $this->_salesFactory->load($orderId);
-
-            $products = [];
-            try {
-                $items = $order->getAllItems();
-                foreach ($items as $i) {
-                    $product = $this->_product->load($i->getProductId());
-                    $brand = $product->getAttributeText('manufacturer');
-                    array_push(
-                        $products,
-                        [
-                            'productUrl' => $product->getProductUrl(),
-                            'name' => $product->getName(),
-                            'brand' => $brand ? $brand : '',
-                            'sku' => $product->getSku(),
-                            'imageUrl' => $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) 
-                                . 'catalog/product' . $product->getImage()
-                        ]
-                    );
-                }
-            } catch (\Exception $e) {
-                // Just skipping products data if we are not able to collect it
-            }
+            $products = $this->_orderDataHelper->getProducts($order);
 
             $data = [
                 'recipientEmail' => trim($this->getEmail($order)),
-                'recipientName' => $order->getCustomerName(),
+                'recipientName' => trim($this->_orderDataHelper->getName($order)),
                 'referenceId' => $order->getRealOrderId(),
-                'productSkus' => $this->getSkus($products),
+                'productSkus' => $this->_orderDataHelper->getSkus($products),
                 'source' => 'Magento-'.$this->_productMetadata->getVersion(),
                 'pluginVersion' => $this->_helper->getGeneralConfigValue('ReleaseNumber'),
                 'products' => $products,
@@ -96,15 +64,6 @@ class Success extends Template
         }            
     }
 
-    public function getSkus($products)
-    {
-        $skus = [];
-        foreach ($products as $product) {
-            array_push($skus, $product['sku']);
-        }
-        return $skus;
-    }
-
     public function getLastRealOrder()
     {
         $orderId = $this->_checkoutSession->getLastRealOrderId();
@@ -113,52 +72,27 @@ class Success extends Template
 
     public function getEmail($order)
     {
-        $email = $this->tryGetEmail($order);
+        $email = $this->_orderDataHelper->getEmail($order);
 
-        if (!($this->is_empty($email)))
+        if (!(empty($email)))
             return $email;
         
         $order = $this->getLastRealOrder();
 
-        return $this->tryGetEmail($order);
-    }
-
-    public function tryGetEmail($order)
-    {
-        if ($this->is_empty($order))
-            return '';
-      
-        if (!($this->is_empty($order->getCustomerEmail())))
-            return $order->getCustomerEmail();
-
-        else if (!($this->is_empty($order->getShippingAddress()->getEmail())))
-            return $order->getShippingAddress()->getEmail();
-
-        else if (!($this->is_empty($order->getBillingAddress()->getEmail())))
-            return $order->getBillingAddress()->getEmail();
-
-        else if (!($this->is_empty($order->getCustomerId())))
-            return $this->_customer->load($order->getCustomerId())->getEmail();
-       
-        return '';
+        return $this->_orderDataHelper->getEmail($order);
     }
 
     public function checkInstallationKey()
     {
         $key = trim($this->_helper->getGeneralConfigValue('key'));
        
-        if ($this->is_empty($key))
+        if (empty($key))
             $this->addNotification();
     }
 
     public function addNotification()
     {
-        if ($this->is_empty($this->_notifications->getLatestMissingKeyNotification()))
+        if (empty($this->_notifications->getLatestMissingKeyNotification()))
             $this->_notifications->createMissingKeyNotification();
-    }
-
-    public function is_empty($var)
-    { 
-        return empty($var);
     }
 }

@@ -18,6 +18,15 @@ class OrderData extends AbstractHelper
         $this->_product = $product;
     }
 
+    public function getName($order)
+    {
+        if ($order->getCustomerIsGuest() === 1) {
+            return $order->getBillingAddress()->getFirstName() . ' ' . $order->getBillingAddress()->getLastName();
+        } else {
+            return $order->getCustomerName();
+        }
+    }
+
     public function getEmail($order)
     {
         if ($this->is_empty($order))
