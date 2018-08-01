@@ -31,19 +31,35 @@ class OrderData extends AbstractHelper
     {
         if ($this->is_empty($order))
             return '';
-      
-        if (!($this->is_empty($order->getCustomerEmail())))
-            return $order->getCustomerEmail();
 
-        else if (!($this->is_empty($order->getShippingAddress()->getEmail())))
-            return $order->getShippingAddress()->getEmail();
+        try {
+            if (!($this->is_empty($order->getCustomerEmail())))
+                return $order->getCustomerEmail();
+        } catch(\Exception $e) {
+            // Just going to the next check
+        }
 
-        else if (!($this->is_empty($order->getBillingAddress()->getEmail())))
-            return $order->getBillingAddress()->getEmail();
+        try {
+            if (!($this->is_empty($order->getShippingAddress()->getEmail())))
+                return $order->getShippingAddress()->getEmail();
+        } catch (\Exception $e) {
+            // Just going to the next check
+        }
 
-        else if (!($this->is_empty($order->getCustomerId())))
-            return $this->_customer->load($order->getCustomerId())->getEmail();
-       
+        try {
+            if (!($this->is_empty($order->getBillingAddress()->getEmail())))
+                return $order->getBillingAddress()->getEmail();
+        } catch (\Exception $e) {
+            // Just going to the next check
+        }
+
+        try {
+            if (!($this->is_empty($order->getCustomerId())))
+                return $this->_customer->load($order->getCustomerId())->getEmail();
+        } catch (\Exception $e) {
+            // Just skipping an email
+        }
+
         return '';
     }
     

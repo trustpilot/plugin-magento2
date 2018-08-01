@@ -35,9 +35,9 @@ class ConfigObserver implements ObserverInterface
         $globalSettings = new \stdClass();
         $globalSettings->source         = 'Magento2';
         $globalSettings->pluginVersion  = $this->_helper->getGeneralConfigValue('ReleaseNumber');
-        $globalSettings->magentoVersion = 'Magento-'.$this->getVersion();
-        $id = 0;
+        $globalSettings->version = 'Magento-'.$this->getVersion();
         $stores = $this->getStores();
+        $globalSettings->stores = array();
         foreach ($stores as $store) {
             $general = new \stdClass();
             $general->key            = trim($this->_helper->getGeneralConfigValue('key'));
@@ -59,9 +59,7 @@ class ConfigObserver implements ObserverInterface
             $settings = new \stdClass();
             $settings->general = $general;
             $settings->trustbox = $trustbox;
-            
-            $globalSettings->$id = $settings;
-            $id = $id + 1;
+            array_push($globalSettings->stores, $settings);
         }
         
         return $globalSettings;
