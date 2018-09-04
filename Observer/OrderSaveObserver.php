@@ -51,7 +51,7 @@ class OrderSaveObserver implements ObserverInterface
                 'orderStatusName' => $order->getStatusLabel(),
                 'hook' => 'sales_order_save_after'
             ];
-            if ($orderStatusId == \Magento\Sales\Model\Order::STATE_NEW || $orderStatusId == null) {
+            if ($orderStatusId == \Magento\Sales\Model\Order::STATE_PROCESSING) {
                     $data['recipientEmail'] = trim($this->_orderDataHelper->getEmail($order));
                     $data['recipientName'] = trim($this->_orderDataHelper->getName($order));;
                 $response = $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
@@ -61,7 +61,7 @@ class OrderSaveObserver implements ObserverInterface
                     $data['productSkus'] = $this->_orderDataHelper->getSkus($products);
                     $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
                 }
-            } else {
+            } else if ($orderStatusId == \Magento\Sales\Model\Order::STATE_COMPLETE) {
                 $data['payloadType'] = 'OrderStatusUpdate';
                 $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
             }
