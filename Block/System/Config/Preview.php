@@ -43,11 +43,6 @@ class Preview extends Field
         return $this->_helper->getTrustboxConfigValue('trustbox_xpath');
     }
 
-    public function getIframeCssUrl()
-    {
-        return $this->getViewFileUrl('Trustpilot_Reviews::css/trustpilot-iframe.css');
-    }
-
     public function getPreviewUrl()
     {
         return $this->_previewUrl;
