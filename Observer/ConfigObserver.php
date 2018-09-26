@@ -35,7 +35,7 @@ class ConfigObserver implements ObserverInterface
         $globalSettings = new \stdClass();
         $globalSettings->source         = 'Magento2';
         $globalSettings->pluginVersion  = $this->_helper->getGeneralConfigValue('ReleaseNumber');
-        $globalSettings->version = 'Magento-'.$this->getVersion();
+        $globalSettings->version = 'Magento-'.$this->_helper->getVersion();
         $stores = $this->getStores();
         $globalSettings->stores = array();
         foreach ($stores as $store) {
@@ -63,12 +63,6 @@ class ConfigObserver implements ObserverInterface
         }
         
         return $globalSettings;
-    }
-
-    private function getVersion() {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
-        return $productMetadata->getVersion();
     }
 
     private function getStores() {

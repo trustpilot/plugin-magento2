@@ -65,8 +65,6 @@ class Data extends AbstractHelper
         ScopeConfigInterface::SCOPE_TYPE_DEFAULT);
     }
     
-
-
     public function getTrustBoxConfig()
     {
         $snippet  = trim($this->getTrustBoxConfigValue('trustbox_code_snippet'));
@@ -79,5 +77,15 @@ class Data extends AbstractHelper
             'xpath'    => base64_encode($xpath)
         ];
         return $data;
+    }
+
+    public function getVersion() {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
+        if (method_exists($productMetadata, 'getVersion')) {
+            return $productMetadata->getVersion();
+        } else {
+            return \Magento\Framework\AppInterface::VERSION;
+        }
     }
 }

@@ -5,7 +5,6 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Sales\Model\Order;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\View\Element\Template;
-use Magento\Framework\App\ProductMetadataInterface;
 use Trustpilot\Reviews\Helper\Data;
 use Trustpilot\Reviews\Helper\Notifications;
 use Trustpilot\Reviews\Helper\OrderData;
@@ -14,7 +13,6 @@ class Success extends Template
 {
     protected $_salesFactory;
     protected $_checkoutSession;
-    protected $_productMetadata;
     protected $_helper;
     protected $_orderDataHelper;
     protected $_notifications;
@@ -23,7 +21,6 @@ class Success extends Template
         Context $context,
         Order $salesOrderFactory,
         Session $checkoutSession,
-        ProductMetadataInterface $productMetadata,
         Data $helper,
         OrderData $orderDataHelper,
         Notifications $notifications,
@@ -31,7 +28,6 @@ class Success extends Template
     ) {
         $this->_salesFactory = $salesOrderFactory;
         $this->_checkoutSession = $checkoutSession;
-        $this->_productMetadata = $productMetadata;
         $this->_helper = $helper;
         $this->_orderDataHelper = $orderDataHelper;
         $this->_notifications = $notifications;
@@ -51,7 +47,7 @@ class Success extends Template
                 'recipientName' => trim($this->_orderDataHelper->getName($order)),
                 'referenceId' => $order->getRealOrderId(),
                 'productSkus' => $this->_orderDataHelper->getSkus($products),
-                'source' => 'Magento-'.$this->_productMetadata->getVersion(),
+                'source' => 'Magento-'.$this->_helper->getVersion(),
                 'pluginVersion' => $this->_helper->getGeneralConfigValue('ReleaseNumber'),
                 'products' => $products,
             ];

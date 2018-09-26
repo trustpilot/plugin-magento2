@@ -80,7 +80,7 @@ class OrderData extends AbstractHelper
     public function getProducts($order){
         $products = [];
         try {
-            $items = $order->getAllItems();
+            $items = $order->getAllVisibleItems();
             foreach ($items as $i) {
                 $product = $this->_product->load($i->getProductId());
                 $brand = $product->getAttributeText('manufacturer');

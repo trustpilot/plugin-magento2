@@ -6,7 +6,6 @@ use Magento\Framework\Event\Observer as EventObserver;
 use \Psr\Log\LoggerInterface;
 use Trustpilot\Reviews\Helper\OrderData;
 use Trustpilot\Reviews\Helper\Data;
-use Magento\Framework\App\ProductMetadataInterface;
 use Trustpilot\Reviews\Helper\TrustpilotHttpClient;
 
 define('__ACCEPTED__', 202);
@@ -16,7 +15,6 @@ class OrderSaveObserver implements ObserverInterface
 
     protected $_trustpilotHttpClient;
     protected $_logger;
-    protected $_productMetadata;
     protected $_orderDataHelper;
     protected $_dataHelper;
     protected $_storeManager;
@@ -25,14 +23,12 @@ class OrderSaveObserver implements ObserverInterface
         LoggerInterface $logger, 
         TrustpilotHttpClient $trustpilotHttpClient,
         OrderData $orderDataHelper,
-        ProductMetadataInterface $productMetadata,
         Data $dataHelper)                       
     {
         $this->_dataHelper = $dataHelper;
         $this->_trustpilotHttpClient = $trustpilotHttpClient;
         $this->_logger = $logger; 
         $this->_orderDataHelper = $orderDataHelper;
-        $this->_productMetadata = $productMetadata;  
         $this->_version = $this->_dataHelper->getGeneralConfigValue('ReleaseNumber');
     }
   
@@ -45,7 +41,7 @@ class OrderSaveObserver implements ObserverInterface
             $key = trim($this->_dataHelper->getGeneralConfigValue('key'));
             $data = [
                 'referenceId' => $order->getRealOrderId(),
-                'source' => 'Magento-' . $this->_productMetadata->getVersion(),
+                'source' => 'Magento-' . $this->_dataHelper->getVersion(),
                 'pluginVersion' => $this->_version,
                 'orderStatusId' => $orderStatusId ,
                 'orderStatusName' => $order->getStatusLabel(),
