@@ -59,7 +59,7 @@ class Preview extends Field
                 case ScopeInterface::SCOPE_WEBSITE:
                     $storeId = $this->_storeManager->getWebsite($storeId)->getDefaultGroup()->getDefaultStoreId();
                     break;
-                case ScopeInterface::SCOPE_TYPE_DEFAULT:
+                case 'default':
                     break;
             }
             $storeCode = $this->_storeManager->getStore($storeId)->getCode();

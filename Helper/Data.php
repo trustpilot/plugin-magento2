@@ -61,8 +61,7 @@ class Data extends AbstractHelper
     public function getScope()
     {
         return $this->_request->getParam('store') ? StoreScopeInterface::SCOPE_STORE : 
-        ($this->_request->getParam('website') ? StoreScopeInterface::SCOPE_WEBSITE : 
-        ScopeConfigInterface::SCOPE_TYPE_DEFAULT);
+        ($this->_request->getParam('website') ? StoreScopeInterface::SCOPE_WEBSITE : 'default');
     }
     
     public function getTrustBoxConfig()
