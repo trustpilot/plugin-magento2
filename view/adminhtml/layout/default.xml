@@ -6,6 +6,7 @@
         <script src="Trustpilot_Reviews::js/bowser.min.js"/>
         <script src="Trustpilot_Reviews::js/validation.js"/>
         <script src="Trustpilot_Reviews::js/elements.js"/>
+        <css    src="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" src_type="url"/>
         <css    src="Trustpilot_Reviews::css/trustpilot.css"/>
     </head>
 </page>
