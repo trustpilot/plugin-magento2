@@ -49,6 +49,7 @@ class HttpClient extends AbstractHelper
     private function setCurlOptions($ch, $httpRequest, $data, $origin, $timeout)
     { 
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         if ($httpRequest == 'POST') {
             $encoded_data = $this->jsonEncoder($data);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -57,7 +58,6 @@ class HttpClient extends AbstractHelper
             return;
         } elseif ($httpRequest == 'GET') {
             curl_setopt($ch, CURLOPT_POST, false);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             return;
         }
         return;
