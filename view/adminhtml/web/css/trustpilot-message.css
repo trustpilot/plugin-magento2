@@ -1,5 +1,3 @@
-@import url('https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
-
 .shake-and-hide-element {
     -moz-animation: hide-element 0s ease-in 10s forwards, shake-element  1s;
     /* Firefox */
