@@ -8,14 +8,10 @@ use \Magento\Store\Model\StoreManagerInterface;
 
 class OrderData extends AbstractHelper
 {
-    protected $_product;
-
     public function __construct(
-        Product $product,
         StoreManagerInterface $storeManager
     ) {
         $this->_storeManager = $storeManager;
-        $this->_product = $product;
     }
 
     public function getName($order)
@@ -80,9 +76,8 @@ class OrderData extends AbstractHelper
     public function getProducts($order){
         $products = [];
         try {
-            $items = $order->getAllVisibleItems();
-            foreach ($items as $i) {
-                $product = $this->_product->load($i->getProductId());
+            foreach ($order->getAllVisibleItems() as $item) {
+                $product = $item->getProduct();
                 $brand = $product->getAttributeText('manufacturer');
                 array_push(
                     $products,
