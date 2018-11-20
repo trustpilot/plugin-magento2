@@ -35,6 +35,8 @@ class Trustbox extends Template
         if ($current_product) {
             $sku = $current_product->getSku();
             $data['sku'] = $sku;
+            $name = $current_product->getName();
+            $data['name'] = $name;
         }
         return json_encode($data, JSON_HEX_APOS);
     }
