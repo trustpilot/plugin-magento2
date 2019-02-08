@@ -5,13 +5,41 @@ namespace Trustpilot\Reviews\Helper;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Store\Model\StoreManagerInterface;
+use Trustpilot\Reviews\Helper\Data;
 
 class OrderData extends AbstractHelper
 {
+    protected $_storeManager;
+    protected $_helper;
+
     public function __construct(
-        StoreManagerInterface $storeManager
-    ) {
+        StoreManagerInterface $storeManager,
+        Data $helper)
+    {
         $this->_storeManager = $storeManager;
+        $this->_helper = $helper;
+    }
+
+    public function getInvitation($order, $hook, $collect_product_data = \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA) 
+    {
+        $invitation = null;
+        if (!is_null($order)) {
+            $invitation = array();
+            $invitation['recipientEmail'] = trim($this->getEmail($order));
+            $invitation['recipientName'] = trim($this->getName($order));
+            $invitation['referenceId'] = $order->getRealOrderId();
+            $invitation['source'] = 'Magento-' . $this->_helper->getVersion();
+            $invitation['pluginVersion'] = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PLUGIN_VERSION;
+            $invitation['hook'] = $hook;
+            $invitation['orderStatusId'] = $order->getState();
+            $invitation['orderStatusName'] = $order->getStatusLabel();
+            if ($collect_product_data == \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA) {
+                $products = $this->getProducts($order);
+                $invitation['products'] = $products;
+                $invitation['productSkus'] = $this->getSkus($products);
+            }
+        }
+        return $invitation;
     }
 
     public function getName($order)
@@ -61,7 +89,7 @@ class OrderData extends AbstractHelper
     
     public function getSkus($products)
     {
-        $skus = [];
+        $skus = array();
         foreach ($products as $product) {
             array_push($skus, $product['sku']);
         }
@@ -73,27 +101,40 @@ class OrderData extends AbstractHelper
         return empty($var);
     }
     
-    public function getProducts($order){
-        $products = [];
+    public function getProducts($order)
+    {
+        $products = array();
         try {
-            foreach ($order->getAllVisibleItems() as $item) {
-                $product = $item->getProduct();
-                $brand = $product->getAttributeText('manufacturer');
+            $settings = json_decode($this->_helper->getConfig('master_settings_field'));
+            $skuSelector = $settings->skuSelector;
+            $gtinSelector = $settings->gtinSelector;
+            $mpnSelector = $settings->mpnSelector;
+        
+            $items = $order->getAllVisibleItems();
+            foreach ($items as $i) {
+                $product = $i->getProduct();
+                $manufacturer = $this->_helper->loadSelector($product, 'manufacturer');
+                $sku = $this->_helper->loadSelector($product, $skuSelector);
+                $mpn = $this->_helper->loadSelector($product, $mpnSelector);
+                $gtin = $this->_helper->loadSelector($product, $gtinSelector);
                 array_push(
                     $products,
-                    [
+                    array(
                         'productUrl' => $product->getProductUrl(),
                         'name' => $product->getName(),
-                        'brand' => $brand ? $brand : '',
-                        'sku' => $product->getSku(),
-                        'imageUrl' => $this->_storeManager->getStore($order->getStoreId())->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) 
+                        'brand' => $manufacturer ? $manufacturer : '',
+                        'sku' => $sku ? $sku : '',
+                        'mpn' => $mpn ? $mpn : '',
+                        'gtin' => $gtin ? $gtin : '',
+                        'imageUrl' => $this->_storeManager->getStore($order->getStoreId())->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
                             . 'catalog/product' . $product->getImage()
-                    ]
+                    )
                 );
             }
         } catch (\Exception $e) {
             // Just skipping products data if we are not able to collect it
         }
+
         return $products;
     }
 }

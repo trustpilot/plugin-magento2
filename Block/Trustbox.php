@@ -5,44 +5,84 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\Registry;
 use Trustpilot\Reviews\Helper\Data;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\ObjectManager;
 
 class Trustbox extends Template
 {
     protected $_helper;
+    protected $_tbWidgetScriptUrl;
     protected $_registry;
+    protected $_request;
+    protected $_storeManager;
+    protected $_urlInterface;
 
     public function __construct(
         Context $context,
         Data $helper,
         Registry $registry,
+        Http $request,
         array $data = [])
     {
         $this->_helper = $helper;
         $this->_registry = $registry;
+        $this->_request = $request;
+        $this->_storeManager = $context->getStoreManager();
+        $this->_tbWidgetScriptUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_WIDGET_SCRIPT_URL;
+        $this->_urlInterface = ObjectManager::getInstance()->get('Magento\Framework\UrlInterface');
         parent::__construct($context, $data);
     }
 
-    public function getTrustBoxPage($block)
-    {
-        $page = trim($this->_helper->getTrustBoxConfigValue('trustbox_page'));
-        return strcmp($page, $block) === 0 ? 'true' : 'false';
+    private function getCurrentUrl() {
+        return $this->_urlInterface->getCurrentUrl();
     }
-    
-    public function getTrustBoxConfig()
+
+    public function getWidgetScriptUrl()
     {
-        $data = $this->_helper->getTrustBoxConfig();
-        $current_product = $this->_registry->registry('current_product');
-        if ($current_product) {
-            $sku = $current_product->getSku();
-            $data['sku'] = $sku;
-            $name = $current_product->getName();
-            $data['name'] = $name;
+        return $this->_tbWidgetScriptUrl;
+    }
+
+    public function loadTrustboxes()
+    {
+        $settings = json_decode($this->_helper->getConfig('master_settings_field'));
+        $trustboxSettings = $settings->trustbox;
+        if (isset($trustboxSettings->trustboxes)) {
+            $currentUrl = $this->getCurrentUrl();
+            $loadedTrustboxes = $this->loadPageTrustboxes($settings, $currentUrl);
+
+            if ($this->_registry->registry('current_product')) {
+                $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'product'), (array)$loadedTrustboxes);
+            }
+            else if ($this->_registry->registry('current_category')) {
+                $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'category'), (array)$loadedTrustboxes);
+            }
+            if ($this->_request->getFullActionName() == 'cms_index_index') {
+                $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'landing'), (array)$loadedTrustboxes);
+            }
+
+            if (count($loadedTrustboxes) > 0) {
+                $trustboxSettings->trustboxes = $loadedTrustboxes;
+                return json_encode($trustboxSettings, JSON_HEX_APOS);
+            }
         }
-        return json_encode($data, JSON_HEX_APOS);
+
+        return '{"trustboxes":[]}';
     }
-    
-    public function getTrustBoxStatus()
+
+    private function loadPageTrustboxes($settings, $page)
     {
-        return trim($this->_helper->getTrustBoxConfigValue('trustbox_enable'));
+        $data = [];
+        $skuSelector = empty($settings->skuSelector) || $settings->skuSelector == 'none' ? 'sku' : $settings->skuSelector;
+        foreach ($settings->trustbox->trustboxes as $trustbox) {
+            if ($trustbox->page == $page && $trustbox->enabled == 'enabled') {
+                $current_product = $this->_registry->registry('current_product');
+                if ($current_product) {
+                    $trustbox->sku = $this->_helper->loadSelector($current_product, $skuSelector);
+                    $trustbox->name = $current_product->getName();
+                }
+                array_push($data, $trustbox);
+            }
+        }
+        return $data;
     }
 }

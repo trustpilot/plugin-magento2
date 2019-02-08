@@ -1,0 +1,41 @@
+<script>
+    const ajaxUrl = "<?php echo $this->getUrl('trustpilot_reviews') ?>";
+    const scope = "<?php echo $this->helper('Trustpilot\Reviews\Helper\Data')->getScope() ?>";
+    const scopeId = "<?php echo $this->helper('Trustpilot\Reviews\Helper\Data')->getWebsiteOrStoreId() ?>";
+    const trustBoxPreviewUrl = '<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_TRUSTBOX_PREVIEW_URL ?>';
+</script>
+<div>
+    <iframe
+        src='<?php echo $this->getIntegrationAppUrl(); ?>'
+        id="configuration_iframe"
+        frameborder="0"
+        scrolling="no"
+        width="100%"
+        height="1400px"
+        data-plugin-version='<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PLUGIN_VERSION ?>'
+        data-source='Magento2'
+        data-version='<?php echo 'Magento2-'. $this->getVersion(); ?>'
+        data-page-urls='<?php echo $this->getPageUrls(); ?>'
+        data-transfer='<?php echo $this->getIntegrationAppUrl(); ?>'
+        data-past-orders='<?php echo $this->getPastOrdersInfo(); ?>'
+        data-settings='<?php echo $this->getSettings(); ?>'
+        data-product-identification-options = '<?php echo $this->getProductIdentificationOptions(); ?>'
+        data-is-from-marketplace='<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_IS_FROM_MARKETPLACE ?>'
+        onload="sendSettings(); sendPastOrdersInfo();"
+    >
+    </iframe>
+   <div id='trustpilot-trustbox-preview'
+        hidden='true'
+        data-page-urls='<?php echo $this->getPageUrls(); ?>'
+        data-custom-trustboxes='<?php echo $this->getCustomTrustBoxes(); ?>'
+        data-settings='<?php echo $this->getSettings(); ?>'
+        data-source='Magento2'
+        data-sku="<?php echo $this->getSku(); ?>"
+        data-name="<?php echo $this->getProductName(); ?>"
+   >
+   </div>
+</div>
+
+<script type="text/javascript" async>
+    require(['<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_TRUSTBOX_PREVIEW_URL ?>']);
+</script>

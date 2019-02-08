@@ -22,6 +22,7 @@ class HttpClient extends AbstractHelper
             $this->setCurlOptions($ch, $httpRequest, $data, $origin, $timeout);
             $url = $this->buildParams($url, $params);
             curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $content = curl_exec($ch);
             $responseData = json_decode($content);
             $responseInfo = curl_getinfo($ch);
@@ -29,7 +30,7 @@ class HttpClient extends AbstractHelper
             curl_close($ch);
             $response = array();
             $response['code'] = $responseCode;
-            if ($responseData) {
+            if (is_object($responseData) || is_array($responseData)) {
                 $response['data'] = $responseData;
             }
             return $response;

@@ -4,59 +4,64 @@ namespace Trustpilot\Reviews\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Trustpilot\Reviews\Helper\HttpClient;
-use Trustpilot\Reviews\Helper\Data;
-use \Psr\Log\LoggerInterface;
 use \Magento\Store\Model\StoreManagerInterface;
 
 class TrustpilotHttpClient extends AbstractHelper
 {
-    protected $_logger;
     protected $_httpClient;
-    protected $_dataHelper;
     protected $_apiUrl;
     protected $_storeManager;
 
     public function __construct(
-        LoggerInterface $logger, 
         HttpClient $httpClient, 
-        StoreManagerInterface $storeManager,
-        Data $dataHelper)
+        StoreManagerInterface $storeManager)
     {
-        $this->_logger = $logger;       
         $this->_httpClient = $httpClient;
-        $this->_dataHelper = $dataHelper;
-        $this->_storeManager=$storeManager;
-       
+        $this->_storeManager = $storeManager;
+        $this->_apiUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_API_URL;
     }
 
-    public function postInvitation($integrationKey, $storeId, $data = array())
+    public function post($url, $origin, $data)
     {
-        $this->_apiUrl = $this->_dataHelper->getGeneralConfigValue('ApiUrl');
-        $url = $this->_apiUrl . $integrationKey . '/invitation';
         $httpRequest = "POST";
+        return $this->_httpClient->request(
+            $url,
+            $httpRequest,
+            $origin,
+            $data
+        );
+    }
+
+    public function buildUrl($key, $endpoint)
+    {
+        return $this->_apiUrl . $key . $endpoint;
+    }
+
+    public function postInvitation($key, $storeId, $data = array())
+    {
         $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
-        $response = $this->_httpClient->request(
-            $url,
-            $httpRequest,
-            $origin,
-            $data
-        );
-        return $response;
+        return $this->post($this->buildUrl($key, '/invitation'), $origin, $data);
     }
 
-    public function postSettings($integrationKey, $data)
+    public function postSettings($key, $data)
     {
-        $this->_apiUrl = $this->_dataHelper->getGeneralConfigValue('ApiUrl');
-        $url = $this->_apiUrl . $integrationKey . '/settings';
-        $httpRequest = "POST";
         $origin = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
-        $response = $this->_httpClient->request(
-            $url,
-            $httpRequest,
-            $origin,
-            $data
-        );
-        return $response;
+        return $this->post($this->buildUrl($key, '/settings'), $origin, $data);
     }
 
+    public function postBatchInvitations($key, $storeId, $data = array())
+    {
+        $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        return $this->post($this->buildUrl($key, '/batchinvitations'), $origin, $data);
+    }
+
+    public function postLog($data, $storeId)
+    {
+        try {
+            $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+            return $this->post($this->_apiUrl . 'log',  $origin, $data);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }
