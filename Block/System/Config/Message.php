@@ -6,7 +6,7 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
  
 class Message extends Field
 {
-    protected $_template = 'system/config/label/message.phtml';
+    protected $_template = 'system/config/message.phtml';
     protected function _getElementHtml(AbstractElement $element)
     {
         return $this->_toHtml();

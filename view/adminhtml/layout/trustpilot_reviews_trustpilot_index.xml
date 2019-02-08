@@ -2,7 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="Trustpilot\Reviews\Block\Success" name="trustpilot.order.success" template="Trustpilot_Reviews::order/success.phtml" after="-"/>
+             <block class="Trustpilot\Reviews\Block\Trustpilot" name="trustpilot_reviews_trustpilot_index" template="Trustpilot_Reviews::system/config/admin.phtml"/>
         </referenceContainer>
     </body>
 </page>

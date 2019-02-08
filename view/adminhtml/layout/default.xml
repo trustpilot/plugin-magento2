@@ -1,11 +1,8 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    layout="admin-1column"
     xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <script src="Trustpilot_Reviews::js/bowser.min.js"/>
-        <script src="Trustpilot_Reviews::js/validation.js"/>
-        <script src="Trustpilot_Reviews::js/elements.js"/>
+        <script src="Trustpilot_Reviews::js/admin.js"/>
         <css    src="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" src_type="url"/>
         <css    src="Trustpilot_Reviews::css/trustpilot.css"/>
     </head>

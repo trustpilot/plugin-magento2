@@ -8,8 +8,10 @@ use Trustpilot\Reviews\Helper\Data;
 class Head extends Template
 {
     protected $_helper;
-    protected $_tbWidgetScriptUrl;
     protected $_scriptUrl;
+    protected $_tbWidgetScriptUrl;
+    protected $_previewScriptUrl;
+    protected $_previewCssUrl;
     
     public function __construct(
         Context $context,
@@ -17,8 +19,10 @@ class Head extends Template
         array $data = []
     ) {
         $this->_helper              = $helper;
-        $this->_scriptUrl           = $this->_helper->getGeneralConfigValue('ScriptUrl');
-        $this->_tbWidgetScriptUrl   = $this->_helper->getGeneralConfigValue('WidgetUrl');
+        $this->_scriptUrl               = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_SCRIPT_URL;
+        $this->_tbWidgetScriptUrl       = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_WIDGET_SCRIPT_URL;
+        $this->_previewScriptUrl        = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PREVIEW_SCRIPT_URL;
+        $this->_previewCssUrl           = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PREVIEW_CSS_URL;
 
         parent::__construct($context, $data);
     }
@@ -28,23 +32,23 @@ class Head extends Template
         return $this->_scriptUrl;
     }
 
-    public function getWgxpathUrl()
-    {
-        return $this->getViewFileUrl('Trustpilot_Reviews::js/wgxpath.install.js');
-    }
-
     public function getWidgetScriptUrl()
     {
         return $this->_tbWidgetScriptUrl;
     }
 
-    public function getInstallationKey()
+    public function getPreviewScriptUrl()
     {
-        return trim($this->_helper->getGeneralConfigValue('key'));
+        return $this->_previewScriptUrl;
     }
 
-    public function getTrustBoxStatus()
+    public function getPreviewCssUrl()
     {
-        return trim($this->_helper->getTrustBoxConfigValue('trustbox_enable'));
+        return $this->_previewCssUrl;
+    }
+
+    public function getInstallationKey()
+    {
+        return $this->_helper->getKey();
     }
 }

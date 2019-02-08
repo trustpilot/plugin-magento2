@@ -12,62 +12,12 @@
             <resource>Trustpilot_Reviews::configuration</resource>
             <group id="general" translate="label" showInDefault="1" showInWebsite="1" showInStore="1">
                 <attribute type="expanded">1</attribute>
-                <label>Trustpilot General Settings</label>
-                <field id="key" translate="label" type="text" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <label>Installation key</label>
-                    <comment>This is the key provided by Trustpilot to connect to your Magento web store.</comment>
-                    <validate>validate-trustpilot-key</validate>
-                </field>
                 <field id="messageDefault" type="label" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Important</label>
                     <frontend_model>Trustpilot\Reviews\Block\System\Config\Message</frontend_model>
                 </field>
-            </group>
-            <group id="signup" translate="label" showInDefault="0" showInWebsite="1" showInStore="1">
-                <attribute type="expanded">1</attribute>
-                <label>Don’t have an installation key yet?</label>
-                <field id="create_user" translate="label" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Signup</frontend_model>
-                    <label>Step 1:</label>
-                    <comment>Create a new Trustpilot Business account.</comment>
-                </field>                
-                <field id="get_key" translate="label" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Connect</frontend_model>
-                    <label>Step 2:</label>
-                    <comment>Connect your Magento store to Trustpilot.</comment>
-                </field>                
-            </group>
-        </section>
-        <section id="trustpilotTrustbox" translate="label" sortOrder="131" showInDefault="0" showInWebsite="1" showInStore="1"> 
-            <class>separator-top</class>
-            <label>TrustBox</label>
-            <tab>trustpilot</tab>
-            <resource>Trustpilot_Reviews::configuration</resource>
-            <group id="trustbox" translate="label" showInWebsite="1" showInStore="1">
-                <label>TrustBox</label>
-                <field id="trustbox_enable" translate="label" type="select" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <label>TrustBox</label>
-                    <source_model>Trustpilot\Reviews\Model\TrustpilotTrustbox</source_model>
-                </field>
-                <field id="trustbox_code_snippet" translate="label" type="textarea" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <label>Copy-paste TrustBox code snippet here:</label>
-                    <comment>HTML code of the TrustBox from Trustpilot integrations page.</comment>
-                    <validate>required-entry validate-trustpilot-script</validate>
-                </field>
-                <field id="get_snippet_button" translate="label" type="button" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Snippet</frontend_model>
-                </field>
-                <field id="trustbox_page" translate="label" type="select" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <label>Page</label>
-                    <source_model>Trustpilot\Reviews\Model\TrustpilotPage</source_model>
-                </field>
-                <field id="trustbox_position" translate="label" type="select" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <label>Position</label>
-                    <source_model>Trustpilot\Reviews\Model\TrustpilotPosition</source_model>
-                </field>
-                <field id="trustbox_xpath" translate="label" type="text" showInDefault="0" showInWebsite="1" showInStore="1">
-                    <label>TrustBox location selector</label>
-                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Preview</frontend_model>
+                <field id="trustpilot_admin" type="text" showInDefault="0" showInWebsite="1" showInStore="1">
+                    <frontend_model>Trustpilot\Reviews\Block\System\Config\Admin</frontend_model>
                 </field>
             </group>
         </section>

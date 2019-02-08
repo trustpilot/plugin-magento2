@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Trustpilot_Reviews::Trustpilot"
+            title="Trustpilot"
+            module="Trustpilot_Reviews"
+            sortOrder="9999"
+            action="trustpilot_reviews/trustpilot"
+            resource="Trustpilot_Reviews::trustpilot" />
+    </menu>
+</config>
