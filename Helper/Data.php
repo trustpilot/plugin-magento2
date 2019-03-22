@@ -102,12 +102,12 @@ class Data extends AbstractHelper
 
     public function getWebsiteOrStoreId()
     {
-        if ($this->_storeManager->getStore()->getStoreId()) {
-            return (int) $this->_storeManager->getStore()->getStoreId();
-        } else if ($this->_request->getParam('store')) {
+        if ($this->_request->getParam('store')) {
             return (int) $this->_request->getParam('store', 0);
         } else if ($this->_request->getParam('website')) {
             return (int) $this->_request->getParam('website', 0);
+        } else if ($this->_storeManager->getStore()->getStoreId()) {
+            return (int) $this->_storeManager->getStore()->getStoreId();
         }
         return 0;
     }
