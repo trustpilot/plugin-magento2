@@ -7,6 +7,7 @@ use Magento\Framework\Registry;
 use Trustpilot\Reviews\Helper\Data;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\ObjectManager;
+use Magento\ConfigurableProduct\Api\LinkManagementInterface;
 
 class Trustbox extends Template
 {
@@ -16,12 +17,14 @@ class Trustbox extends Template
     protected $_request;
     protected $_storeManager;
     protected $_urlInterface;
+    protected $_linkManagement;
 
     public function __construct(
         Context $context,
         Data $helper,
         Registry $registry,
         Http $request,
+        LinkManagementInterface $_linkManagement,
         array $data = [])
     {
         $this->_helper = $helper;
@@ -30,6 +33,7 @@ class Trustbox extends Template
         $this->_storeManager = $context->getStoreManager();
         $this->_tbWidgetScriptUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_WIDGET_SCRIPT_URL;
         $this->_urlInterface = ObjectManager::getInstance()->get('Magento\Framework\UrlInterface');
+        $this->_linkManagement = $_linkManagement;
         parent::__construct($context, $data);
     }
 
@@ -77,7 +81,21 @@ class Trustbox extends Template
             if ($trustbox->page == $page && $trustbox->enabled == 'enabled') {
                 $current_product = $this->_registry->registry('current_product');
                 if ($current_product) {
-                    $trustbox->sku = $this->_helper->loadSelector($current_product, $skuSelector);
+                    $skus = array();
+                    $productSku = $this->_helper->loadSelector($current_product, $skuSelector);
+                    if ($productSku) {
+                        array_push($skus, $productSku);
+                    }
+                    if ($current_product->getTypeId() == 'configurable') {
+                        $collection = $this->_linkManagement->getChildren($current_product->getSku());
+                        foreach ($collection as $product) {
+                            $productSku = $this->_helper->loadSelector($product, $skuSelector);
+                            if ($productSku) {
+                                array_push($skus, $productSku);
+                            }
+                        }
+                    }
+                    $trustbox->sku = implode(',', $skus);
                     $trustbox->name = $current_product->getName();
                 }
                 array_push($data, $trustbox);

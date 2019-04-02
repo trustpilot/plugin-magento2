@@ -179,6 +179,7 @@ class Data extends AbstractHelper
         $collection = $this->_productCollectionFactory->create();
         $collection->addAttributeToSelect('*');
         $collection->setStore($this->getWebsiteOrStoreId());
+        $collection->addStoreFilter($this->getWebsiteOrStoreId());
         $collection->addAttributeToFilter('status', 1);
         $collection->addAttributeToFilter('visibility', array(2, 3, 4));
         return $collection->getFirstItem();

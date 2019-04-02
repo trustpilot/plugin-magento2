@@ -33,6 +33,10 @@ class OrderData extends AbstractHelper
             $invitation['hook'] = $hook;
             $invitation['orderStatusId'] = $order->getState();
             $invitation['orderStatusName'] = $order->getStatusLabel();
+            try {
+                $invitation['totalCost'] = $order->getGrandTotal();
+                $invitation['currency'] = $order->getOrderCurrencyCode();
+            } catch (\Exception $ex) {}
             if ($collect_product_data == \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA) {
                 $products = $this->getProducts($order);
                 $invitation['products'] = $products;

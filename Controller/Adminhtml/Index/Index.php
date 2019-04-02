@@ -5,20 +5,24 @@ namespace Trustpilot\Reviews\Controller\Adminhtml\Index;
 use Magento\Backend\App\Action;
 use Trustpilot\Reviews\Helper\Data;
 use Trustpilot\Reviews\Helper\PastOrders;
+use Trustpilot\Reviews\Helper\Products;
 
 class Index extends Action
 {
     protected $_helper;
     protected $_pastOrders;
+    protected $_products;
 
     public function __construct(
         Action\Context $context,
         Data $helper,
-        PastOrders $pastOrders)
+        PastOrders $pastOrders,
+        Products $products)
     {
         parent::__construct($context);
         $this->_helper = $helper;
         $this->_pastOrders = $pastOrders;
+        $this->_products = $products;
     }
 
     public function execute()
@@ -65,6 +69,10 @@ class Index extends Action
                         $this->getResponse()->setBody('true');
                         break;
                     }
+                    break;
+                case 'check_product_skus':
+                    $result = $this->_products->checkSkus();
+                    $this->getResponse()->setBody(json_encode($result));
                     break;
             }
         }
