@@ -4,7 +4,7 @@
     const scopeId = "<?php echo $this->helper('Trustpilot\Reviews\Helper\Data')->getWebsiteOrStoreId() ?>";
     const trustBoxPreviewUrl = '<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_TRUSTBOX_PREVIEW_URL ?>';
 </script>
-<div>
+<div tabindex="0">
     <iframe
         src='<?php echo $this->getIntegrationAppUrl(); ?>'
         id="configuration_iframe"
