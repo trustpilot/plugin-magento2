@@ -17,8 +17,6 @@ class Trustpilot extends Template
 {
     protected $_helper;
     protected $_pastOrders;
-    protected $_integrationAppUrl;
-    
     public function __construct(
         Context $context,
         Data $helper,
@@ -27,15 +25,12 @@ class Trustpilot extends Template
     ) {
         $this->_helper = $helper;
         $this->_pastOrders = $pastOrders;
-        $this->_integrationAppUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_INTEGRATION_APP_URL;
         parent::__construct($context, $data);
     }
 
     public function getIntegrationAppUrl()
     {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https:" : "http:";
-        $domainName = $protocol . $this->_integrationAppUrl;
-        return $domainName;
+        return $this->_helper->getIntegrationAppUrl();
     }
 
     public function getSettings() {
@@ -54,9 +49,13 @@ class Trustpilot extends Template
         }
         return "{}";
     }
-    
+
     public function getProductIdentificationOptions() {
         return $this->_helper->getProductIdentificationOptions();
+    }
+
+    public function getStoreInformation() {
+        return $this->_helper->getStoreInformation();
     }
 
     public function getPastOrdersInfo() {
@@ -65,7 +64,7 @@ class Trustpilot extends Template
         $info['basis'] = 'plugin';
         return json_encode($info);
     }
-    
+
     public function getSku()
     {
         return $this->_helper->getFirstProduct()->getSku();

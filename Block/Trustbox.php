@@ -24,7 +24,7 @@ class Trustbox extends Template
         Data $helper,
         Registry $registry,
         Http $request,
-        LinkManagementInterface $_linkManagement,
+        LinkManagementInterface $linkManagement,
         array $data = [])
     {
         $this->_helper = $helper;
@@ -33,7 +33,7 @@ class Trustbox extends Template
         $this->_storeManager = $context->getStoreManager();
         $this->_tbWidgetScriptUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_WIDGET_SCRIPT_URL;
         $this->_urlInterface = ObjectManager::getInstance()->get('Magento\Framework\UrlInterface');
-        $this->_linkManagement = $_linkManagement;
+        $this->_linkManagement = $linkManagement;
         parent::__construct($context, $data);
     }
 

@@ -41,6 +41,11 @@ class Success extends Template
             $general_settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId))->general;
             $data = $this->_orderData->getInvitation($order, 'magento2_success', \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA);
 
+            try {
+                $data['totalCost'] = $order->getGrandTotal();
+                $data['currency'] = $order->getOrderCurrencyCode();
+            } catch (\Exception $ex) {}
+
             if (!in_array('trustpilotOrderConfirmed', $general_settings->mappedInvitationTrigger)) {
                 $data['payloadType'] = 'OrderStatusUpdate';
             }

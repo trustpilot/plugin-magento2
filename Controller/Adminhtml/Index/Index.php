@@ -71,7 +71,9 @@ class Index extends Action
                     }
                     break;
                 case 'check_product_skus':
-                    $result = $this->_products->checkSkus();
+                    $result = array(
+                        'skuScannerResults' => $this->_products->checkSkus($post['skuSelector'])
+                    );
                     $this->getResponse()->setBody(json_encode($result));
                     break;
             }
