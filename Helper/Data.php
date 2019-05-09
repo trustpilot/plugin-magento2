@@ -15,6 +15,7 @@ use \Magento\Framework\App\Cache\Frontend\Pool;
 use \Magento\Framework\Api\SearchCriteriaBuilder;
 use \Magento\Eav\Api\AttributeRepositoryInterface;
 use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigCollectionFactory;
+use \Magento\Store\Model\StoreRepository;
 
 class Data extends AbstractHelper
 {
@@ -35,6 +36,8 @@ class Data extends AbstractHelper
     protected $_configCollectionFactory;
     protected $_logger;
     protected $_httpClient;
+    protected $_storeRepository;
+    protected $_integrationAppUrl;
 
     public function __construct(
         Context $context,
@@ -47,7 +50,8 @@ class Data extends AbstractHelper
         SearchCriteriaBuilder $searchCriteriaBuilder,
         AttributeRepositoryInterface $attributeRepository,
         ConfigCollectionFactory $configCollectionFactory,
-        TrustpilotHttpClient $httpClient
+        TrustpilotHttpClient $httpClient,
+        StoreRepository $storeRepository
     ) {
         $this->_storeManager = $storeManager;
         $this->_categoryCollectionFactory   = $categoryCollectionFactory;
@@ -62,6 +66,20 @@ class Data extends AbstractHelper
         $this->_configCollectionFactory = $configCollectionFactory;
         $this->_logger = $context->getLogger();
         $this->_httpClient = $httpClient;
+        $this->_storeRepository = $storeRepository;
+        $this->_integrationAppUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_INTEGRATION_APP_URL;
+    }
+
+    public function getIntegrationAppUrl()
+    {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || $_SERVER['SERVER_PORT'] == 443
+            || isset($_SERVER['HTTP_USESSL'])
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+            ? "https:" : "http:";
+        $domainName = $protocol . $this->_integrationAppUrl;
+        return $domainName;
     }
 
     public function getKey($storeId = null)
@@ -102,32 +120,41 @@ class Data extends AbstractHelper
 
     public function getWebsiteOrStoreId()
     {
+        if ($this->_request->getParam('store')) {
+            return (int) $this->_request->getParam('store', 0);
+        }
+        if ($this->_request->getParam('website')) {
+            return (int) $this->_request->getParam('website', 0);
+        }
+        if ($this->isAdminPage() && $this->_storeManager->getStore()->getWebsiteId()) {
+            return (int) $this->_storeManager->getStore()->getWebsiteId();
+        }
         if ($this->_storeManager->getStore()->getStoreId()) {
             return (int) $this->_storeManager->getStore()->getStoreId();
-        } else if ($this->_request->getParam('store')) {
-            return (int) $this->_request->getParam('store', 0);
-        } else if ($this->_request->getParam('website')) {
-            return (int) $this->_request->getParam('website', 0);
         }
         return 0;
     }
 
     public function getScope()
     {
-         // user at store
-         $storeId = $this->_storeManager->getStore()->getStoreId();
-         if ($storeId) {
+        // user is on the admin store level
+        if (strlen($this->_request->getParam('store'))) {
             return StoreScopeInterface::SCOPE_STORES;
-         }
-         // user at admin store level
-         if (strlen($code = $this->_request->getParam('store'))) {
-            return StoreScopeInterface::SCOPE_STORES;
-         }
-         if (strlen($code = $this->_request->getParam('website'))) {
+        }
+        // user is on the admin website level
+        if (strlen($this->_request->getParam('website'))) {
             return StoreScopeInterface::SCOPE_WEBSITES;
-         }
-         // user at admin default level
-         return 'default';
+        }
+        // is user is on admin page, try to automatically detect his website scope
+        if ($this->isAdminPage() && $this->_storeManager->getStore()->getWebsiteId()) {
+            return StoreScopeInterface::SCOPE_WEBSITES;
+        }
+        // user is on the storefront
+        if ($this->_storeManager->getStore()->getStoreId()) {
+            return StoreScopeInterface::SCOPE_STORES;
+        }
+        // user at admin default level
+        return 'default';
     }
 
     public function getConfig($config, $storeId = null)
@@ -220,13 +247,19 @@ class Data extends AbstractHelper
     public function getProductIdentificationOptions()
     {
         $fields = array('none', 'sku', 'id');
-        $optionalFields = array('upc', 'isbn', 'mpn', 'gtin', 'brand', 'manufacturer');
+        $optionalFields = array('upc', 'isbn', 'brand', 'manufacturer');
+        $dynamicFields = array('mpn', 'gtin');
         $attrs = array_map(function ($t) { return $t; }, $this->getAttributes());
 
         foreach ($attrs as $attr) {
             foreach ($optionalFields as $field) {
-                if ($attr == $field && !in_array($field, $fields)) {
+                if ($attr == $field) {
                     array_push($fields, $field);
+                }
+            }
+            foreach ($dynamicFields as $field) {
+                if (stripos($attr, $field) !== false) {
+                    array_push($fields, $attr);
                 }
             }
         }
@@ -249,21 +282,26 @@ class Data extends AbstractHelper
         return $attr;
     }
 
-    public function loadSelector($product, $selector)
+    public function loadSelector($product, $selector, $childProducts = null)
     {
         switch ($selector) {
             case 'id':
                 return (string) $product->getId();
-            case 'brand':
-            case 'manufacturer':
-            case 'sku':
-            case 'upc':
-            case 'isbn':
-            case 'mpn':                
-            case 'gtin':
-                return $this->loadAttributeValue($product, $selector);
             default:
-                return '';
+                $values = array();
+                if (!empty($childProducts)) {
+                    foreach ($childProducts as $product) {
+                        $value = $this->loadAttributeValue($product, $selector);
+                        if (!empty($value)) {
+                            array_push($values, $value);
+                        }
+                    }
+                }
+                if (!empty($values)) {
+                    return implode(',', $values);
+                } else {
+                    return $this->loadAttributeValue($product, $selector);
+                }
         }
     }
 
@@ -273,9 +311,12 @@ class Data extends AbstractHelper
             if ($attribute = $product->getResource()->getAttribute($selector)) {
                 $data = $product->getData($selector);
                 $label = $attribute->getSource()->getOptionText($data);
+                if (is_array($label)) {
+                    $label = implode(', ', $label);
+                }
                 return $label ? $label : (string) $data;
             } else {
-                return $label = ''; 
+                return $label = '';
             }
         } catch(\Exception $e) {
             return '';
@@ -307,5 +348,33 @@ class Data extends AbstractHelper
             'message'  => $message,
         );
         $this->_httpClient->postLog($log, $this->getWebsiteOrStoreId());
+    }
+
+    public function getStoreInformation() {
+        $stores = $this->_storeRepository->getList();
+        $result = array();
+        //Each store view is unique
+        foreach ($stores as $store) {
+            if ($store->isActive() && $store->getId() != 0) {
+                $names = array(
+                    'site'      => $store->getWebsite()->getName(),
+                    'store'     => $store->getGroup()->getName(),
+                    'view'      => $store->getName(),                    
+                );
+                $item = array(
+                    'ids'       => array((string) $store->getWebsite()->getId(), (string) $store->getGroupId(), (string) $store->getStoreId()),
+                    'names'     => $names,
+                    'domain'    => preg_replace(array('#^https?://#', '#/?$#'), '', $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB)),
+                );
+                array_push($result, $item);
+            }
+        }
+        return  base64_encode(json_encode($result));
+    }
+
+    public function isAdminPage() {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $state =  $objectManager->get('Magento\Framework\App\State');
+        return 'adminhtml' === $state->getAreaCode();
     }
 }

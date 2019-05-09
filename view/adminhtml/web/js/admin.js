@@ -27,8 +27,10 @@ function receiveSettings(e) {
         action['issynced'] = 'issynced';
         this.submitPastOrdersCommand(action);
     } else if (data.startsWith('check_product_skus')) {
+        const split = data.split(':');
         const action = {};
         action['action'] = 'check_product_skus';
+        action['skuSelector'] = split[1];
         this.submitCheckProductSkusCommand(action);
     } else if (data === 'update') {
         updateplugin();
@@ -107,8 +109,8 @@ function submitCheckProductSkusCommand(data) {
             if (xhr.status >= 400) {
                 console.log(`callback error: ${xhr.response} ${xhr.status}`);
             } else {
-                // TODO: send data to integration app
-                console.log(xhr.response);
+                const iframe = document.getElementById('configuration_iframe');
+                iframe.contentWindow.postMessage(xhr.response, iframe.dataset.transfer);
             }
         }
     };
@@ -173,6 +175,7 @@ function sendSettings() {
     settings.version = attrs.version;
     settings.basis = 'plugin';
     settings.productIdentificationOptions = JSON.parse(attrs.productIdentificationOptions);
+    settings.configurationScopeTree = JSON.parse(atob(attrs.configurationScopeTree));
     settings.isFromMarketplace = attrs.isFromMarketplace;
 
     if (settings.trustbox.trustboxes && attrs.sku) {

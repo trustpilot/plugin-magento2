@@ -11,7 +11,6 @@ class Admin extends Field
 {
     protected $_helper;
     protected $_pastOrders;
-    protected $_integrationAppUrl;
     protected $_template = 'system/config/admin.phtml';
 
     public function __construct(
@@ -22,15 +21,12 @@ class Admin extends Field
     {
         $this->_helper = $helper;
         $this->_pastOrders = $pastOrders;
-        $this->_integrationAppUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_INTEGRATION_APP_URL;
         parent::__construct($context, $data);
     }
 
     public function getIntegrationAppUrl()
     {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https:" : "http:";
-        $domainName = $protocol . $this->_integrationAppUrl;
-        return $domainName;
+        return $this->_helper->getIntegrationAppUrl();
     }
 
     public function getSettings() {
@@ -54,13 +50,17 @@ class Admin extends Field
         return $this->_helper->getProductIdentificationOptions();
     }
 
+    public function getStoreInformation() {
+        return $this->_helper->getStoreInformation();
+    }
+
     public function getPastOrdersInfo() {
         $storeId = $this->_helper->getWebsiteOrStoreId();
         $info = $this->_pastOrders->getPastOrdersInfo($storeId);
         $info['basis'] = 'plugin';
         return json_encode($info);
     }
-    
+
     public function getSku()
     {
         return $this->_helper->getFirstProduct()->getSku();
