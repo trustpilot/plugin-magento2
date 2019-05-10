@@ -36,7 +36,8 @@ class OrderData extends AbstractHelper
             $invitation['pluginVersion'] = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PLUGIN_VERSION;
             $invitation['hook'] = $hook;
             $invitation['orderStatusId'] = $order->getState();
-            $invitation['orderStatusName'] = $order->getStatusLabel();
+            //$invitation['orderStatusName'] = $order->getStatusLabel();
+            $invitation['orderStatusName'] = $order->getStatus();
             try {
                 $invitation['templateParams'] = array((string)$this->getWebsiteId($order), (string)$this->getGroupId($order), (string)$order->getStoreId());
             } catch (\Exception $ex) {}
