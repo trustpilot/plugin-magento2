@@ -73,7 +73,7 @@ class Data extends AbstractHelper
     public function getIntegrationAppUrl()
     {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-            || $_SERVER['SERVER_PORT'] == 443
+            || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
             || isset($_SERVER['HTTP_USESSL'])
             || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
             || (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
@@ -364,7 +364,7 @@ class Data extends AbstractHelper
                 $item = array(
                     'ids'       => array((string) $store->getWebsite()->getId(), (string) $store->getGroupId(), (string) $store->getStoreId()),
                     'names'     => $names,
-                    'domain'    => preg_replace(array('#^https?://#', '#/?$#'), '', $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB)),
+                    'domain'    => parse_url($store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB), PHP_URL_HOST),
                 );
                 array_push($result, $item);
             }

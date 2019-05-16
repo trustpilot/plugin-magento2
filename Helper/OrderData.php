@@ -121,7 +121,7 @@ class OrderData extends AbstractHelper
     {
         $products = array();
         try {
-            $settings = json_decode($this->_helper->getConfig('master_settings_field'));
+            $settings = json_decode($this->_helper->getConfig('master_settings_field', $order->getStoreId()));
             $skuSelector = $settings->skuSelector;
             $gtinSelector = $settings->gtinSelector;
             $mpnSelector = $settings->mpnSelector;

@@ -13,7 +13,6 @@
             <group id="general" translate="label" showInDefault="1" showInWebsite="1" showInStore="1">
                 <attribute type="expanded">1</attribute>
                 <field id="messageDefault" type="label" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Important</label>
                     <frontend_model>Trustpilot\Reviews\Block\System\Config\Message</frontend_model>
                 </field>
                 <field id="trustpilot_admin" type="text" showInDefault="0" showInWebsite="1" showInStore="1">

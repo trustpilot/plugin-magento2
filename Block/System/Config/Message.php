@@ -9,6 +9,10 @@ class Message extends Field
     protected $_template = 'system/config/message.phtml';
     protected function _getElementHtml(AbstractElement $element)
     {
-        return $this->_toHtml();
+        if (!$this->_storeManager->isSingleStoreMode()) {
+            return $this->_toHtml();
+        } else {
+            return null;
+        }
     }
 }
