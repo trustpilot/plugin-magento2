@@ -127,7 +127,7 @@ class Data extends AbstractHelper
             return (int) $this->_request->getParam('website', 0);
         }
         if ($this->isAdminPage() && $this->_storeManager->getStore()->getWebsiteId()) {
-            return (int) $this->_storeManager->getStore()->getWebsiteId();
+            return (int) $this->_storeManager->getStore()->getStoreId();
         }
         if ($this->_storeManager->getStore()->getStoreId()) {
             return (int) $this->_storeManager->getStore()->getStoreId();
