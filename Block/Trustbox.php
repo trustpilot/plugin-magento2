@@ -78,7 +78,7 @@ class Trustbox extends Template
         $data = [];
         $skuSelector = empty($settings->skuSelector) || $settings->skuSelector == 'none' ? 'sku' : $settings->skuSelector;
         foreach ($settings->trustbox->trustboxes as $trustbox) {
-            if ($trustbox->page == $page && $trustbox->enabled == 'enabled') {
+            if (rtrim($trustbox->page, '/') == rtrim($page, '/') && $trustbox->enabled == 'enabled') {
                 $current_product = $this->_registry->registry('current_product');
                 if ($current_product) {
                     $skus = array();
