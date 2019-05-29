@@ -161,7 +161,7 @@ class Data extends AbstractHelper
     {
         $path = self::TRUSTPILOT_SETTINGS . $config;
 
-        if ($this->getWebsiteOrStoreId()) {
+        if ($this->getWebsiteOrStoreId() && $storeId === null) {
             $collection = $this->_configCollectionFactory->create()
                 ->addFieldToFilter('scope', $this->getScope())
                 ->addFieldToFilter('path', $path)
