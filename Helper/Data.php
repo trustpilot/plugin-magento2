@@ -209,6 +209,7 @@ class Data extends AbstractHelper
         $collection->addStoreFilter($this->getWebsiteOrStoreId());
         $collection->addAttributeToFilter('status', 1);
         $collection->addAttributeToFilter('visibility', array(2, 3, 4));
+        $collection->setPageSize(1);
         return $collection->getFirstItem();
     }
 
@@ -226,6 +227,7 @@ class Data extends AbstractHelper
                     $collection->setStore($storeId);
                     $collection->addAttributeToFilter('is_active', 1);
                     $collection->addAttributeToFilter('children_count', 0);
+                    $collection->setPageSize(1);
                     $category = $collection->getFirstItem();
                     $productUrl = strtok($category->getUrl(),'?').'?___store='.$storeCode;
                     return $productUrl;
