@@ -5,7 +5,6 @@
         <block class="Trustpilot\Reviews\Block\Trustbox" name="trustpilot.head.trustbox" as="trustpilot.head.trustbox" template="Trustpilot_Reviews::trustbox.phtml"/>
     </referenceContainer>
     <head>
-        <css src="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" src_type="url"/>
         <css src="Trustpilot_Reviews::css/trustpilot.css"/>
     </head>
 </page>
