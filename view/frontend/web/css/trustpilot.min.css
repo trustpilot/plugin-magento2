@@ -1,0 +1,66 @@
+.shake-and-hide-element {
+    -moz-animation: hide-element 0s ease-in 5s forwards, shake-element  1s;
+    /* Firefox */
+    -webkit-animation: hide-element 0s ease-in 5s forwards, shake-element  1s;
+    /* Safari and Chrome */
+    -o-animation: hide-element 0s ease-in 5s forwards, shake-element  1s;
+    /* Opera */
+    animation: hide-element 0s ease-in 5s forwards, shake-element  1s;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;  
+}
+
+
+@keyframes shake-element {
+    0%, 100% {transform: translateX(0);}
+    10%, 30%, 50%, 70%, 90% {transform: translateX(-5px);}
+    20%, 40%, 60%, 80% {transform: translateX(5px);}
+  }
+
+@-webkit-keyframes shake-element {
+    0%, 100% {transform: translateX(0);}
+    10%, 30%, 50%, 70%, 90% {transform: translateX(-5px);}
+    20%, 40%, 60%, 80% {transform: translateX(5px);}
+}
+
+@keyframes hide-element {
+    to {
+        width: 0;
+        height: 0;
+        padding: 0px;
+        margin: 0px;
+        overflow: hidden;
+    }
+}
+
+@-webkit-keyframes hide-element {
+    to {
+        width: 0;
+        height: 0;
+        padding: 0px;
+        margin: 0px;
+        visibility: hidden;
+    }
+}
+.warning-icon{
+    width: 20%;
+    max-width: 30px;
+    font-size: 21px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.trustbox-message-text {
+    width: 80%;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.trustbox-message-box {
+    background-color: #fcf8e3;
+    color: #8a6d3b;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid;
+    border-color: #faebcc;
+}
