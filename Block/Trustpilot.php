@@ -33,17 +33,17 @@ class Trustpilot extends Template
         return $this->_helper->getIntegrationAppUrl();
     }
 
-    public function getSettings() {
-        return base64_encode($this->_helper->getConfig('master_settings_field'));
+    public function getSettings($storeId) {
+        return base64_encode($this->_helper->getConfig('master_settings_field', $storeId));
     }
 
-    public function getPageUrls() {
-        return base64_encode(json_encode($this->_helper->getPageUrls()));
+    public function getPageUrls($storeId) {
+        return base64_encode(json_encode($this->_helper->getPageUrls($storeId)));
     }
 
-    public function getCustomTrustBoxes()
+    public function getCustomTrustBoxes($storeId)
     {
-        $customTrustboxes = $this->_helper->getConfig('custom_trustboxes');
+        $customTrustboxes = $this->_helper->getConfig('custom_trustboxes', $storeId);
         if ($customTrustboxes) {
             return $customTrustboxes;
         }
@@ -58,8 +58,7 @@ class Trustpilot extends Template
         return $this->_helper->getStoreInformation();
     }
 
-    public function getPastOrdersInfo() {
-        $storeId = $this->_helper->getWebsiteOrStoreId();
+    public function getPastOrdersInfo($storeId) {
         $info = $this->_pastOrders->getPastOrdersInfo($storeId);
         $info['basis'] = 'plugin';
         return json_encode($info);

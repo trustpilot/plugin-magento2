@@ -82,7 +82,7 @@ class Data extends AbstractHelper
         return $domainName;
     }
 
-    public function getKey($storeId = null)
+    public function getKey($storeId)
     {
         return trim(json_decode(self::getConfig('master_settings_field', $storeId))->general->key);
     }
@@ -120,10 +120,10 @@ class Data extends AbstractHelper
 
     public function getWebsiteOrStoreId()
     {
-        if ($this->_request->getParam('store')) {
+        if (strlen($this->_request->getParam('store'))) {
             return (int) $this->_request->getParam('store', 0);
         }
-        if ($this->_request->getParam('website')) {
+        if (strlen($this->_request->getParam('website'))) {
             return (int) $this->_request->getParam('website', 0);
         }
         if ($this->isAdminPage() && $this->_storeManager->getStore()->getWebsiteId()) {
@@ -157,25 +157,11 @@ class Data extends AbstractHelper
         return 'default';
     }
 
-    public function getConfig($config, $storeId = null)
+    public function getConfig($config, $storeId)
     {
         $path = self::TRUSTPILOT_SETTINGS . $config;
 
-        if ($this->getWebsiteOrStoreId() && $storeId === null) {
-            $collection = $this->_configCollectionFactory->create()
-                ->addFieldToFilter('scope', $this->getScope())
-                ->addFieldToFilter('path', $path)
-                ->addFieldToFilter('scope_id', $this->getWebsiteOrStoreId());
-            $data = $collection->getFirstItem()->getData();
-
-            if ($data) {
-                $setting = $data['value'];
-            } else {
-                $setting = $this->scopeConfig->getValue($path, $this->getScope(), $this->getWebsiteOrStoreId());
-            }
-        } else {
-            $setting = $this->scopeConfig->getValue($path, StoreScopeInterface::SCOPE_STORES, $storeId);
-        }
+        $setting = $this->scopeConfig->getValue($path, $this->getScope(), $storeId);
 
         return $setting ? $setting : $this->getDefaultConfigValues($config);
     }
@@ -190,13 +176,13 @@ class Data extends AbstractHelper
         }
     }
 
-    public function getPageUrls()
+    public function getPageUrls($storeId)
     {
         $pageUrls = new \stdClass();
-        $pageUrls->landing = $this->getPageUrl('trustpilot_trustbox_homepage');
-        $pageUrls->category = $this->getPageUrl('trustpilot_trustbox_category');
-        $pageUrls->product = $this->getPageUrl('trustpilot_trustbox_product');
-        $customPageUrls = json_decode($this->getConfig('page_urls'));
+        $pageUrls->landing = $this->getPageUrl('trustpilot_trustbox_homepage', $storeId);
+        $pageUrls->category = $this->getPageUrl('trustpilot_trustbox_category', $storeId);
+        $pageUrls->product = $this->getPageUrl('trustpilot_trustbox_product', $storeId);
+        $customPageUrls = json_decode($this->getConfig('page_urls', $storeId));
         $urls = (object) array_merge((array) $customPageUrls, (array) $pageUrls);
         return $urls;
     }
@@ -213,10 +199,9 @@ class Data extends AbstractHelper
         return $collection->getFirstItem();
     }
 
-    public function getPageUrl($page)
+    public function getPageUrl($page, $storeId)
     {
         try {
-            $storeId = $this->getWebsiteOrStoreId();
             $storeCode = $this->_storeManager->getStore($storeId)->getCode();
             switch ($page) {
                 case 'trustpilot_trustbox_homepage':
@@ -342,14 +327,15 @@ class Data extends AbstractHelper
 
     public function log($message, $exception)
     {
+        $storeId = $this->getWebsiteOrStoreId();
         $this->_logger->error($message, ['exception' => $exception]);
         $log = array(
             'platform' => 'Magento2',
             'version'  => \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PLUGIN_VERSION,
-            'key'      => $this->getKey(),
+            'key'      => $this->getKey($storeId),
             'message'  => $message,
         );
-        $this->_httpClient->postLog($log, $this->getWebsiteOrStoreId());
+        $this->_httpClient->postLog($log, $storeId);
     }
 
     public function getStoreInformation() {
