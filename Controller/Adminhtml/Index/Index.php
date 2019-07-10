@@ -31,7 +31,7 @@ class Index extends Action
         if ($this->getRequest()->isAjax()) {
             $post = $this->getRequest()->getPostValue();
             $scope = $post['scope'];
-            $scopeId = $post['scopeId'];
+            $scopeId = (int) $post['scopeId'];
             switch ($post["action"]) {
                 case 'handle_save_changes':
                     if (array_key_exists('settings', $post)) {

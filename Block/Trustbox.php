@@ -48,7 +48,8 @@ class Trustbox extends Template
 
     public function loadTrustboxes()
     {
-        $settings = json_decode($this->_helper->getConfig('master_settings_field'));
+        $storeId = $this->_helper->getWebsiteOrStoreId();
+        $settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId));
         $trustboxSettings = $settings->trustbox;
         if (isset($trustboxSettings->trustboxes)) {
             $currentUrl = $this->getCurrentUrl();

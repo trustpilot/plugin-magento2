@@ -49,6 +49,7 @@ class Head extends Template
 
     public function getInstallationKey()
     {
-        return $this->_helper->getKey();
+        $storeId = $this->_helper->getWebsiteOrStoreId();
+        return $this->_helper->getKey($storeId);
     }
 }

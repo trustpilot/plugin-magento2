@@ -29,7 +29,7 @@ class PastOrders extends AbstractHelper
         $this->_helper->setConfig('sync_in_progress', 'true', $scope, $storeId);
         $this->_helper->setConfig("show_past_orders_initial", 'false', $scope, $storeId);
         try {
-            $key = $this->_helper->getKey();
+            $key = $this->_helper->getKey($storeId);
             $collect_product_data = \Trustpilot\Reviews\Model\Config::WITHOUT_PRODUCT_DATA;
             if (!is_null($key)) {
                 $this->_helper->setConfig('past_orders', 0, $scope, $storeId);
@@ -74,7 +74,7 @@ class PastOrders extends AbstractHelper
     {
         $this->_helper->setConfig('sync_in_progress', 'true', $scope, $storeId);
         try {
-            $key = $this->_helper->getKey();
+            $key = $this->_helper->getKey($storeId);
             $failed_orders_object = json_decode($this->_helper->getConfig('failed_orders', $scope, $storeId));
             $collect_product_data = \Trustpilot\Reviews\Model\Config::WITHOUT_PRODUCT_DATA;
             if (!is_null($key)) {
@@ -126,7 +126,7 @@ class PastOrders extends AbstractHelper
         return $invitations;
     }
 
-    public function getPastOrdersInfo($storeId = null)
+    public function getPastOrdersInfo($storeId)
     {
         $syncInProgress = $this->_helper->getConfig('sync_in_progress', $storeId);
         $showInitial = $this->_helper->getConfig('show_past_orders_initial', $storeId);
@@ -162,7 +162,7 @@ class PastOrders extends AbstractHelper
         }
     }
 
-    private function getSalesCollection($period_in_days, $storeId = null) {
+    private function getSalesCollection($period_in_days, $storeId) {
         $date = new \DateTime();
         $args = array(
             'date_created' => $date->setTimestamp(time() - (86400 * $period_in_days))->format('Y-m-d'),
