@@ -48,19 +48,19 @@ class Index extends Action
                 case 'handle_past_orders':
                     if (array_key_exists('sync', $post)) {
                         $this->_pastOrders->sync($post["sync"], $scope, $scopeId);
-                        $output = $this->_pastOrders->getPastOrdersInfo($scopeId);
+                        $output = $this->_pastOrders->getPastOrdersInfo($scope, $scopeId);
                         $output['basis'] = 'plugin';
                         $output['pastOrders']['showInitial'] = false;
                         $this->getResponse()->setBody(json_encode($output));
                         break;
                     } else if (array_key_exists('resync', $post)) {
                         $this->_pastOrders->resync($scope, $scopeId);
-                        $output = $this->_pastOrders->getPastOrdersInfo($scopeId);
+                        $output = $this->_pastOrders->getPastOrdersInfo($scope, $scopeId);
                         $output['basis'] = 'plugin';
                         $this->getResponse()->setBody(json_encode($output));
                         break;
                     } else if (array_key_exists('issynced', $post)) {
-                        $output = $this->_pastOrders->getPastOrdersInfo($scopeId);
+                        $output = $this->_pastOrders->getPastOrdersInfo($scope, $scopeId);
                         $output['basis'] = 'plugin';
                         $this->getResponse()->setBody(json_encode($output));
                         break;

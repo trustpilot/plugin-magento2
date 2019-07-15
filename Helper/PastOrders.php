@@ -29,12 +29,12 @@ class PastOrders extends AbstractHelper
         $this->_helper->setConfig('sync_in_progress', 'true', $scope, $storeId);
         $this->_helper->setConfig("show_past_orders_initial", 'false', $scope, $storeId);
         try {
-            $key = $this->_helper->getKey($storeId);
+            $key = $this->_helper->getKey($scope, $storeId);
             $collect_product_data = \Trustpilot\Reviews\Model\Config::WITHOUT_PRODUCT_DATA;
             if (!is_null($key)) {
                 $this->_helper->setConfig('past_orders', 0, $scope, $storeId);
                 $pageId = 1;
-                $sales_collection = $this->getSalesCollection($period_in_days, $storeId);
+                $sales_collection = $this->getSalesCollection($period_in_days, $scope, $storeId);
                 $post_batch = $this->getInvitationsForPeriod($sales_collection, $collect_product_data, $pageId);
                 while ($post_batch) {
                     set_time_limit(30);
@@ -74,8 +74,8 @@ class PastOrders extends AbstractHelper
     {
         $this->_helper->setConfig('sync_in_progress', 'true', $scope, $storeId);
         try {
-            $key = $this->_helper->getKey($storeId);
-            $failed_orders_object = json_decode($this->_helper->getConfig('failed_orders', $scope, $storeId));
+            $key = $this->_helper->getKey($scope, $storeId);
+            $failed_orders_object = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
             $collect_product_data = \Trustpilot\Reviews\Model\Config::WITHOUT_PRODUCT_DATA;
             if (!is_null($key)) {
                 $failed_orders_array = array();
@@ -126,13 +126,13 @@ class PastOrders extends AbstractHelper
         return $invitations;
     }
 
-    public function getPastOrdersInfo($storeId)
+    public function getPastOrdersInfo($scope, $storeId)
     {
-        $syncInProgress = $this->_helper->getConfig('sync_in_progress', $storeId);
-        $showInitial = $this->_helper->getConfig('show_past_orders_initial', $storeId);
+        $syncInProgress = $this->_helper->getConfig('sync_in_progress', $storeId, $scope);
+        $showInitial = $this->_helper->getConfig('show_past_orders_initial', $storeId, $scope);
         if ($syncInProgress === 'false') {
-            $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId);
-            $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId));
+            $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId, $scope);
+            $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
 
             $failed_orders_result = array();
             foreach ($failed_orders as $key => $value) {
@@ -162,12 +162,12 @@ class PastOrders extends AbstractHelper
         }
     }
 
-    private function getSalesCollection($period_in_days, $storeId) {
+    private function getSalesCollection($period_in_days, $scope, $storeId) {
         $date = new \DateTime();
         $args = array(
             'date_created' => $date->setTimestamp(time() - (86400 * $period_in_days))->format('Y-m-d'),
             'limit' => 20,
-            'past_order_statuses' => json_decode($this->_helper->getConfig('master_settings_field', $storeId))->pastOrderStatuses
+            'past_order_statuses' => json_decode($this->_helper->getConfig('master_settings_field', $storeId, $scope))->pastOrderStatuses
         );
         
         $collection = $this->_orders->getCollection()
@@ -195,8 +195,8 @@ class PastOrders extends AbstractHelper
 
     private function handleTrustpilotResponse($response, $post_batch, $scope, $storeId)
     {
-        $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId);
-        $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId));
+        $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId, $scope);
+        $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
 
         $data = array();
         if (isset($response['data']))

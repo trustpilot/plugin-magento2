@@ -22,10 +22,10 @@
         data-plugin-version='<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PLUGIN_VERSION ?>'
         data-source='Magento2'
         data-version='<?php echo 'Magento2-'. $this->getVersion(); ?>'
-        data-page-urls='<?php echo $this->getPageUrls($storeId); ?>'
+        data-page-urls='<?php echo $this->getPageUrls($scope, $storeId); ?>'
         data-transfer='<?php echo $this->getIntegrationAppUrl(); ?>'
-        data-past-orders='<?php echo $this->getPastOrdersInfo($storeId); ?>'
-        data-settings='<?php echo $this->getSettings($storeId); ?>'
+        data-past-orders='<?php echo $this->getPastOrdersInfo($scope, $storeId); ?>'
+        data-settings='<?php echo $this->getSettings($scope, $storeId); ?>'
         data-product-identification-options = '<?php echo $this->getProductIdentificationOptions(); ?>'
         data-is-from-marketplace='<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_IS_FROM_MARKETPLACE ?>'
         data-configuration-scope-tree = '<?php echo $this->getStoreInformation(); ?>'
@@ -34,9 +34,9 @@
     </iframe>
    <div id='trustpilot-trustbox-preview'
         hidden='true'
-        data-page-urls='<?php echo $this->getPageUrls($storeId); ?>'
-        data-custom-trustboxes='<?php echo $this->getCustomTrustBoxes($storeId); ?>'
-        data-settings='<?php echo $this->getSettings($storeId); ?>'
+        data-page-urls='<?php echo $this->getPageUrls($scope, $storeId); ?>'
+        data-custom-trustboxes='<?php echo $this->getCustomTrustBoxes($scope, $storeId); ?>'
+        data-settings='<?php echo $this->getSettings($scope, $storeId); ?>'
         data-source='Magento2'
         data-sku="<?php echo $this->getSku(); ?>"
         data-name="<?php echo $this->getProductName(); ?>"

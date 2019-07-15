@@ -49,7 +49,8 @@ class Head extends Template
 
     public function getInstallationKey()
     {
+        $scope = $this->_helper->getScope();
         $storeId = $this->_helper->getWebsiteOrStoreId();
-        return $this->_helper->getKey($storeId);
+        return $this->_helper->getKey($scope, $storeId);
     }
 }

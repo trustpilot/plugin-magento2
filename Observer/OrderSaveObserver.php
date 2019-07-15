@@ -8,6 +8,7 @@ use Trustpilot\Reviews\Helper\OrderData;
 use Trustpilot\Reviews\Helper\Data;
 use Trustpilot\Reviews\Helper\TrustpilotHttpClient;
 use Magento\Config\Model\ResourceModel\Config;
+use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 
 define('__ACCEPTED__', 202);
 
@@ -41,7 +42,7 @@ class OrderSaveObserver implements ObserverInterface
         $orderStatus = $order->getState();
         $storeId = $order->getStoreId();
 
-        $settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId));
+        $settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId, StoreScopeInterface::SCOPE_STORES));
         $key = $settings->general->key;
 
         try {
@@ -73,9 +74,9 @@ class OrderSaveObserver implements ObserverInterface
     public function handleSingleResponse($response, $order, $storeId)
     {
         try {
-            $scope = $this->_helper->getScope();
-            $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId);
-            $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId));
+            $scope = StoreScopeInterface::SCOPE_STORES;
+            $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId, $scope);
+            $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
 
             if ($response['code'] == 201) {
                 $synced_orders = (int) ($synced_orders + 1);
