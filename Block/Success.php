@@ -7,6 +7,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\View\Element\Template;
 use Trustpilot\Reviews\Helper\Data;
 use Trustpilot\Reviews\Helper\OrderData;
+use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 
 class Success extends Template
 {
@@ -38,7 +39,7 @@ class Success extends Template
             $order   = $this->_salesFactory->load($orderId);
             $storeId = $order->getStoreId();
             
-            $general_settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId))->general;
+            $general_settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId, StoreScopeInterface::SCOPE_STORES))->general;
             $data = $this->_orderData->getInvitation($order, 'magento2_success', \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA);
 
             try {

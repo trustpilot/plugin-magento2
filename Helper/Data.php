@@ -10,12 +10,10 @@ use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCo
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use \Magento\Store\Model\StoreManagerInterface;
-use \Magento\Framework\App\Cache\TypeListInterface;
-use \Magento\Framework\App\Cache\Frontend\Pool;
 use \Magento\Framework\Api\SearchCriteriaBuilder;
 use \Magento\Eav\Api\AttributeRepositoryInterface;
-use Magento\Config\Model\ResourceModel\Config\Data\CollectionFactory as ConfigCollectionFactory;
 use \Magento\Store\Model\StoreRepository;
+use Magento\Framework\App\Config\ReinitableConfigInterface;
 
 class Data extends AbstractHelper
 {
@@ -28,16 +26,14 @@ class Data extends AbstractHelper
     protected $_categoryCollectionFactory;
     protected $_productCollectionFactory;
     protected $_configWriter;
-    protected $_cacheTypeList;
-    protected $_cacheFrontendPool;
     protected $_attributeFactory;
     protected $_searchCriteriaBuilder;
     protected $_attributeRepository;
-    protected $_configCollectionFactory;
     protected $_logger;
     protected $_httpClient;
     protected $_storeRepository;
     protected $_integrationAppUrl;
+    protected $_reinitableConfig;
 
     public function __construct(
         Context $context,
@@ -45,13 +41,11 @@ class Data extends AbstractHelper
         CategoryCollectionFactory $categoryCollectionFactory,
         ProductCollectionFactory $productCollectionFactory,
         WriterInterface $configWriter,
-        TypeListInterface $cacheTypeList,
-        Pool $cacheFrontendPool,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         AttributeRepositoryInterface $attributeRepository,
-        ConfigCollectionFactory $configCollectionFactory,
         TrustpilotHttpClient $httpClient,
-        StoreRepository $storeRepository
+        StoreRepository $storeRepository,
+        ReinitableConfigInterface $reinitableConfig
     ) {
         $this->_storeManager = $storeManager;
         $this->_categoryCollectionFactory   = $categoryCollectionFactory;
@@ -61,13 +55,11 @@ class Data extends AbstractHelper
         $this->_configWriter = $configWriter;
         parent::__construct($context);
         $this->_request = $context->getRequest();
-        $this->_cacheTypeList = $cacheTypeList;
-        $this->_cacheFrontendPool = $cacheFrontendPool;
-        $this->_configCollectionFactory = $configCollectionFactory;
         $this->_logger = $context->getLogger();
         $this->_httpClient = $httpClient;
         $this->_storeRepository = $storeRepository;
         $this->_integrationAppUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_INTEGRATION_APP_URL;
+        $this->_reinitableConfig = $reinitableConfig;
     }
 
     public function getIntegrationAppUrl()
@@ -82,9 +74,9 @@ class Data extends AbstractHelper
         return $domainName;
     }
 
-    public function getKey($storeId)
+    public function getKey($scope, $storeId)
     {
-        return trim(json_decode(self::getConfig('master_settings_field', $storeId))->general->key);
+        return trim(json_decode(self::getConfig('master_settings_field', $storeId, $scope))->general->key);
     }
 
     private function getDefaultConfigValues($key)
@@ -157,13 +149,35 @@ class Data extends AbstractHelper
         return 'default';
     }
 
-    public function getConfig($config, $storeId)
+    public function getConfig($config, $storeId, $scope = null)
     {
+        $this->_reinitableConfig->reinit();
+        
         $path = self::TRUSTPILOT_SETTINGS . $config;
 
-        $setting = $this->scopeConfig->getValue($path, $this->getScope(), $storeId);
+        if ($scope === null) {
+            $scope = $this->getScope();
+        } elseif ($scope === 'store') {
+            $scope = 'stores';
+        } elseif ($scope === 'website') {
+            $scope = 'websites';
+        }
 
+        $setting = $this->scopeConfig->getValue($path, $scope, $storeId);
+        
         return $setting ? $setting : $this->getDefaultConfigValues($config);
+    }
+
+    public function setConfig($config, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
+    {
+        if ($scope === 'store') {
+            $scope = 'stores';
+        } elseif ($scope === 'website') {
+            $scope = 'websites';
+        }
+        $this->_configWriter->save(self::TRUSTPILOT_SETTINGS . $config,  $value, $scope, $scopeId);
+
+        $this->_reinitableConfig->reinit();
     }
 
     public function getVersion() {
@@ -176,13 +190,13 @@ class Data extends AbstractHelper
         }
     }
 
-    public function getPageUrls($storeId)
+    public function getPageUrls($scope, $storeId)
     {
         $pageUrls = new \stdClass();
         $pageUrls->landing = $this->getPageUrl('trustpilot_trustbox_homepage', $storeId);
         $pageUrls->category = $this->getPageUrl('trustpilot_trustbox_category', $storeId);
         $pageUrls->product = $this->getPageUrl('trustpilot_trustbox_product', $storeId);
-        $customPageUrls = json_decode($this->getConfig('page_urls', $storeId));
+        $customPageUrls = json_decode($this->getConfig('page_urls', $storeId, $scope));
         $urls = (object) array_merge((array) $customPageUrls, (array) $pageUrls);
         return $urls;
     }
@@ -308,31 +322,17 @@ class Data extends AbstractHelper
         } catch(\Exception $e) {
             return '';
         }
-    }
-
-    public function setConfig($config, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
-    {
-        if ($scope === 'store') {
-            $scope = 'stores';
-        } elseif ($scope === 'website') {
-            $scope = 'websites';
-        }
-        $this->_configWriter->save(self::TRUSTPILOT_SETTINGS . $config,  $value, $scope, $scopeId);
-
-        $this->_cacheTypeList->cleanType('block_html');
-        foreach ($this->_cacheFrontendPool as $cacheFrontend) {
-            $cacheFrontend->getBackend()->clean();
-        }
-    }
+    }    
 
     public function log($message, $exception)
     {
+        $scope = $this->getScope();
         $storeId = $this->getWebsiteOrStoreId();
         $this->_logger->error($message, ['exception' => $exception]);
         $log = array(
             'platform' => 'Magento2',
             'version'  => \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PLUGIN_VERSION,
-            'key'      => $this->getKey($storeId),
+            'key'      => $this->getKey($scope, $storeId),
             'message'  => $message,
         );
         $this->_httpClient->postLog($log, $storeId);

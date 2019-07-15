@@ -7,6 +7,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Store\Model\StoreManagerInterface;
 use Trustpilot\Reviews\Helper\Data;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 
 class OrderData extends AbstractHelper
 {
@@ -121,7 +122,7 @@ class OrderData extends AbstractHelper
     {
         $products = array();
         try {
-            $settings = json_decode($this->_helper->getConfig('master_settings_field', $order->getStoreId()));
+            $settings = json_decode($this->_helper->getConfig('master_settings_field', $order->getStoreId(), StoreScopeInterface::SCOPE_STORES));
             $skuSelector = $settings->skuSelector;
             $gtinSelector = $settings->gtinSelector;
             $mpnSelector = $settings->mpnSelector;
