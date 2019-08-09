@@ -34,7 +34,7 @@ class Admin extends Field
     }
 
     public function getPageUrls($scope, $storeId) {
-        return base64_encode(json_encode($this->_helper->getPageUrls($storeId, $scope)));
+        return base64_encode(json_encode($this->_helper->getPageUrls($scope, $storeId)));
     }
 
     public function getCustomTrustBoxes($scope, $storeId)
