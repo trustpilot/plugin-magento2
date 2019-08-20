@@ -8,21 +8,25 @@ use \Magento\Store\Model\StoreManagerInterface;
 use Trustpilot\Reviews\Helper\Data;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
+use \Psr\Log\LoggerInterface;
 
 class OrderData extends AbstractHelper
 {
     protected $_storeManager;
     protected $_helper;
     protected $_categoryCollectionFactory;
+    protected $_logger;
 
     public function __construct(
         StoreManagerInterface $storeManager,
         Data $helper,
-        CategoryCollectionFactory $categoryCollectionFactory)
+        CategoryCollectionFactory $categoryCollectionFactory,
+        LoggerInterface $logger)
     {
         $this->_storeManager = $storeManager;
         $this->_helper = $helper;
         $this->_categoryCollectionFactory = $categoryCollectionFactory;
+        $this->_logger = $logger;
     }
 
     public function getInvitation($order, $hook, $collect_product_data = \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA)
@@ -138,43 +142,55 @@ class OrderData extends AbstractHelper
                         array_push($childProducts, $cpItem->getProduct());
                     }
                 }
-    
-                $manufacturer = $this->_helper->loadSelector($product, 'manufacturer', $childProducts);
+
                 $sku = $this->_helper->loadSelector($product, $skuSelector, $childProducts);
                 $mpn = $this->_helper->loadSelector($product, $mpnSelector, $childProducts);
                 $gtin = $this->_helper->loadSelector($product, $gtinSelector, $childProducts);
-                array_push(
-                    $products,
-                    array(
-                        'price' => $product->getFinalPrice(),
-                        'currency' => $order->getOrderCurrencyCode(),
-                        'description' => strip_tags($product->getDescription()),
-                        'meta' => array(
-                            'title' => $product->getMetaTitle() ? $product->getMetaTitle() : $product->getName(),
-                            'keywords' => $product->getMetaKeyword() ? $product->getMetaKeyword() : $product->getName(),
-                            'description' => $product->getMetaDescription() ? $product->getMetaDescription() : substr(strip_tags($product->getDescription()), 0, 255),
-                        ),
-                        'manufacturer' => $manufacturer ? $manufacturer : '',
-                        'categories' => $this->getProductCategories($product, $childProducts),
-                        'images' => $this->getAllImages($product, $childProducts),
-                        'videos' => $this->getAllVideos($product, $childProducts),
-                        'tags' => null,
-                        'productUrl' => $product->getProductUrl(),
-                        'name' => $product->getName(),
-                        'brand' => $product->getBrand() ? $product->getBrand() : $manufacturer,
-                        'sku' => $sku ? $sku : '',
-                        'mpn' => $mpn ? $mpn : '',
-                        'gtin' => $gtin ? $gtin : '',
-                        'imageUrl' => $this->_storeManager->getStore($order->getStoreId())->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
-                            . 'catalog/product' . $product->getImage()
-                    )
+
+                $productData = array(
+                    'productUrl' => $product->getProductUrl(),
+                    'name' => $product->getName(),
+                    'sku' => $sku ? $sku : '',
+                    'mpn' => $mpn ? $mpn : '',
+                    'gtin' => $gtin ? $gtin : '',
+                    'imageUrl' => $this->_storeManager->getStore($order->getStoreId())->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
+                        . 'catalog/product' . $product->getImage()
                 );
+
+                $productData = $this->getProductExtraFields($productData, $product, $childProducts, $order);
+
+                array_push($products, $productData);
             }
         } catch (\Exception $e) {
             // Just skipping products data if we are not able to collect it
+            $this->_logger->error('Unable to get product data: ' . $e->getMessage() . 'Line ' . $e->getLine());
         }
 
         return $products;
+    }
+
+    function getProductExtraFields($productData, $product, $childProducts, $order) {
+        try {
+            $manufacturer = $this->_helper->loadSelector($product, 'manufacturer', $childProducts);
+            return array_merge($productData, array(
+                'price' => $product->getFinalPrice(),
+                'currency' => $order->getOrderCurrencyCode(),
+                'description' => strip_tags($product->getDescription()),
+                'meta' => array(
+                    'title' => $product->getMetaTitle() ? $product->getMetaTitle() : $product->getName(),
+                    'keywords' => $product->getMetaKeyword() ? $product->getMetaKeyword() : $product->getName(),
+                    'description' => $product->getMetaDescription() ? $product->getMetaDescription() : substr(strip_tags($product->getDescription()), 0, 255),
+                ),
+                'manufacturer' => $manufacturer ? $manufacturer : '',
+                'categories' => $this->getProductCategories($product, $childProducts),
+                'images' => $this->getAllImages($product, $childProducts),
+                'videos' => $this->getAllVideos($product, $childProducts),
+                'tags' => null,
+                'brand' => $product->getBrand() ? $product->getBrand() : $manufacturer,
+            ));
+        } catch (\Exception $e) {
+            return $productData;
+        }
     }
 
     function getProductCategories($product, $childProducts = null) {
