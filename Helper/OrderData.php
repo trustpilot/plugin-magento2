@@ -5,10 +5,10 @@ namespace Trustpilot\Reviews\Helper;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Store\Model\StoreManagerInterface;
-use Trustpilot\Reviews\Helper\Data;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use \Psr\Log\LoggerInterface;
+use \Magento\Catalog\Model\ProductFactory;
 
 class OrderData extends AbstractHelper
 {
@@ -16,17 +16,20 @@ class OrderData extends AbstractHelper
     protected $_helper;
     protected $_categoryCollectionFactory;
     protected $_logger;
+    protected $_productFactory;
 
     public function __construct(
         StoreManagerInterface $storeManager,
         Data $helper,
         CategoryCollectionFactory $categoryCollectionFactory,
-        LoggerInterface $logger)
+        LoggerInterface $logger,
+        ProductFactory $_productFactory)
     {
         $this->_storeManager = $storeManager;
         $this->_helper = $helper;
         $this->_categoryCollectionFactory = $categoryCollectionFactory;
         $this->_logger = $logger;
+        $this->_productFactory = $_productFactory;
     }
 
     public function getInvitation($order, $hook, $collect_product_data = \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA)
@@ -126,14 +129,15 @@ class OrderData extends AbstractHelper
     {
         $products = array();
         try {
-            $settings = json_decode($this->_helper->getConfig('master_settings_field', $order->getStoreId(), StoreScopeInterface::SCOPE_STORES));
+            $storeId = $order->getStoreId();
+            $settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId, StoreScopeInterface::SCOPE_STORES));
             $skuSelector = $settings->skuSelector;
             $gtinSelector = $settings->gtinSelector;
             $mpnSelector = $settings->mpnSelector;
 
             $items = $order->getAllVisibleItems();
             foreach ($items as $item) {
-                $product = $item->getProduct();
+                $product= $this->_productFactory->create()->setStoreId($storeId)->load($item->getProductId());
 
                 $childProducts = array();
                 if ($item->getHasChildren()) {
@@ -153,7 +157,7 @@ class OrderData extends AbstractHelper
                     'sku' => $sku ? $sku : '',
                     'mpn' => $mpn ? $mpn : '',
                     'gtin' => $gtin ? $gtin : '',
-                    'imageUrl' => $this->_storeManager->getStore($order->getStoreId())->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
+                    'imageUrl' => $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
                         . 'catalog/product' . $product->getImage()
                 );
 
