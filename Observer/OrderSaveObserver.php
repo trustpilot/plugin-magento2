@@ -46,7 +46,7 @@ class OrderSaveObserver implements ObserverInterface
         $key = $settings->general->key;
 
         try {
-            if (isset($key)) {
+            if (isset($key) && $order->getState() != $order->getOrigData('state')) {
                 $data = $this->_orderData->getInvitation($order, 'sales_order_save_after', \Trustpilot\Reviews\Model\Config::WITHOUT_PRODUCT_DATA);
 
                 if (in_array($orderStatus, $settings->general->mappedInvitationTrigger)) {
@@ -61,13 +61,11 @@ class OrderSaveObserver implements ObserverInterface
                     $data['payloadType'] = 'OrderStatusUpdate';
                     $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
                 }
-                return;
             }
         } catch (\Exception $e) {
             $error = array('message' => $e->getMessage());
             $data = array('error' => $error);
             $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
-            return;
         }
     }
 

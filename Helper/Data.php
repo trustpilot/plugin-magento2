@@ -151,8 +151,6 @@ class Data extends AbstractHelper
 
     public function getConfig($config, $storeId, $scope = null)
     {
-        $this->_reinitableConfig->reinit();
-        
         $path = self::TRUSTPILOT_SETTINGS . $config;
 
         if ($scope === null) {
