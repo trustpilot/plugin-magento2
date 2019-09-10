@@ -87,6 +87,7 @@ class Trustbox extends Template
                     if ($productSku) {
                         array_push($skus, $productSku);
                     }
+                    array_push($skus, \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PRODUCT_ID_PREFIX . $current_product->getId());
                     if ($current_product->getTypeId() == 'configurable') {
                         $collection = $this->_linkManagement->getChildren($current_product->getSku());
                         foreach ($collection as $product) {
@@ -94,6 +95,7 @@ class Trustbox extends Template
                             if ($productSku) {
                                 array_push($skus, $productSku);
                             }
+                            array_push($skus, \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PRODUCT_ID_PREFIX . $product->getId());
                         }
                     }
                     $trustbox->sku = implode(',', $skus);

@@ -38,7 +38,7 @@
         data-custom-trustboxes='<?php echo $this->getCustomTrustBoxes($scope, $storeId); ?>'
         data-settings='<?php echo $this->getSettings($scope, $storeId); ?>'
         data-source='Magento2'
-        data-sku="<?php echo $this->getSku(); ?>"
+        data-sku="<?php echo $this->getSku($scope, $storeId); ?>"
         data-name="<?php echo $this->getProductName(); ?>"
    >
    </div>

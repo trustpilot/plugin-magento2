@@ -6,21 +6,25 @@ use Trustpilot\Reviews\Helper\PastOrders;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Trustpilot\Reviews\Helper\TrustpilotLog;
 
 class Admin extends Field
 {
     protected $_helper;
     protected $_pastOrders;
     protected $_template = 'system/config/admin.phtml';
+    protected $_trustpilotLog;
 
     public function __construct(
         Context $context,
         Data $helper,
         PastOrders $pastOrders,
+        TrustpilotLog $trustpilotLog,
         array $data = [])
     {
         $this->_helper = $helper;
         $this->_pastOrders = $pastOrders;
+        $this->_trustpilotLog = $trustpilotLog;
         parent::__construct($context, $data);
     }
 
@@ -60,9 +64,31 @@ class Admin extends Field
         return json_encode($info);
     }
 
-    public function getSku()
+    public function getSku($scope, $storeId)
     {
-        return $this->_helper->getFirstProduct()->getSku();
+        try {
+            $product = $this->_helper->getFirstProduct();
+            if ($product) {
+                $skuSelector = json_decode($this->_helper->getConfig('master_settings_field', $storeId, $scope))->skuSelector;
+                $productId = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PRODUCT_ID_PREFIX . $this->_helper->loadSelector($product, 'id');
+                if ($skuSelector == 'none') $skuSelector = 'sku';
+                return $this->_helper->loadSelector($product, $skuSelector) . ',' . $productId;
+            }
+        } catch (\Throwable $throwable) {
+            $description = 'Unable to get sku in Admin.php';
+            $this->_trustpilotLog->error($throwable, $description, array(
+                'scope' => $scope,
+                'storeId' => $storeId
+            ));
+            return '';
+        } catch (\Exception $exception) {
+            $description = 'Unable to get sku in Admin.php';
+            $this->_trustpilotLog->error($exception, $description, array(
+                'scope' => $scope,
+                'storeId' => $storeId
+            ));
+            return '';
+        }
     }
 
     public function getProductName()

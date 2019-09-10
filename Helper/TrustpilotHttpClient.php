@@ -5,6 +5,7 @@ namespace Trustpilot\Reviews\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Trustpilot\Reviews\Helper\HttpClient;
 use \Magento\Store\Model\StoreManagerInterface;
+use \Magento\Framework\UrlInterface;
 
 class TrustpilotHttpClient extends AbstractHelper
 {
@@ -39,26 +40,26 @@ class TrustpilotHttpClient extends AbstractHelper
 
     public function postInvitation($key, $storeId, $data = array())
     {
-        $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_WEB);
         return $this->post($this->buildUrl($key, '/invitation'), $origin, $data);
     }
 
     public function postSettings($key, $data)
     {
-        $origin = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        $origin = $this->_storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_WEB);
         return $this->post($this->buildUrl($key, '/settings'), $origin, $data);
     }
 
     public function postBatchInvitations($key, $storeId, $data = array())
     {
-        $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_WEB);
         return $this->post($this->buildUrl($key, '/batchinvitations'), $origin, $data);
     }
 
-    public function postLog($data, $storeId)
+    public function postLog($data, $storeId = null)
     {
         try {
-            $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+            $origin = $storeId ? $this->_storeManager->getStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_WEB) : '';
             return $this->post($this->_apiUrl . 'log',  $origin, $data);
         } catch (\Exception $e) {
             return false;

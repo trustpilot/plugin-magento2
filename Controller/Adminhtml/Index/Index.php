@@ -76,6 +76,12 @@ class Index extends Action
                     );
                     $this->getResponse()->setBody(json_encode($result));
                     break;
+                case 'get_signup_data':
+                    $result = array(
+                        'trustpilot_signup_data' => base64_encode(json_encode($this->_helper->getBusinessInformation($scope, $scopeId)))
+                    );
+                    $this->getResponse()->setBody(json_encode($result));
+                    break;
             }
         }
 

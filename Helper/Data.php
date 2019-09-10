@@ -8,58 +8,61 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Helper\Context;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use \Magento\Store\Model\ResourceModel\Website\CollectionFactory as WebsiteCollectionFactory;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\Api\SearchCriteriaBuilder;
 use \Magento\Eav\Api\AttributeRepositoryInterface;
 use \Magento\Store\Model\StoreRepository;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
+use \Magento\Framework\UrlInterface;
 
 class Data extends AbstractHelper
 {
-    const XML_PATH_TRUSTPILOT_GENERAL = 'trustpilotGeneral/general/';
-    const XML_PATH_TRUSTPILOT_TRUSTBOX = 'trustpilotTrustbox/trustbox/';
     const TRUSTPILOT_SETTINGS = 'trustpilot/trustpilot_general_group/';
 
     protected $_request;
     protected $_storeManager;
     protected $_categoryCollectionFactory;
     protected $_productCollectionFactory;
+    protected $_websiteCollectionFactory;
     protected $_configWriter;
-    protected $_attributeFactory;
     protected $_searchCriteriaBuilder;
     protected $_attributeRepository;
-    protected $_logger;
     protected $_httpClient;
     protected $_storeRepository;
     protected $_integrationAppUrl;
     protected $_reinitableConfig;
+    protected $_trustpilotLog;
 
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
         CategoryCollectionFactory $categoryCollectionFactory,
         ProductCollectionFactory $productCollectionFactory,
+        WebsiteCollectionFactory $websiteCollectionFactory,
         WriterInterface $configWriter,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         AttributeRepositoryInterface $attributeRepository,
         TrustpilotHttpClient $httpClient,
         StoreRepository $storeRepository,
-        ReinitableConfigInterface $reinitableConfig
+        ReinitableConfigInterface $reinitableConfig,
+        TrustpilotLog $trustpilotLog
     ) {
         $this->_storeManager = $storeManager;
         $this->_categoryCollectionFactory   = $categoryCollectionFactory;
         $this->_productCollectionFactory    = $productCollectionFactory;
+        $this->_websiteCollectionFactory    = $websiteCollectionFactory;
         $this->_searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->_attributeRepository = $attributeRepository;
         $this->_configWriter = $configWriter;
         parent::__construct($context);
         $this->_request = $context->getRequest();
-        $this->_logger = $context->getLogger();
         $this->_httpClient = $httpClient;
         $this->_storeRepository = $storeRepository;
         $this->_integrationAppUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_INTEGRATION_APP_URL;
         $this->_reinitableConfig = $reinitableConfig;
+        $this->_trustpilotLog = $trustpilotLog;
     }
 
     public function getIntegrationAppUrl()
@@ -233,12 +236,19 @@ class Data extends AbstractHelper
                     $productUrl = strtok($product->setStoreId($storeId)->getUrlInStore(),'?').'?___store='.$storeCode;
                     return $productUrl;
             }
+        } catch (\Throwable $e) {
+            $description = 'Unable to find URL for a page ' . $page;
+            $this->_trustpilotLog->error($e, $description, array(
+                'page' => $page,
+                'storeId' => $storeId
+            ));
+            return $this->_storeManager->getStore()->getBaseUrl();
         } catch (\Exception $e) {
-            if (empty($value)) {
-                $this->_logger->error('Error: ' . $e->getMessage());
-            } else {
-                $this->_logger->error('Unable to find URL for a page ' . $value . '. Error: ' . $e->getMessage());
-            }
+            $description = 'Unable to find URL for a page ' . $page;
+            $this->_trustpilotLog->error($e, $description, array(
+                'page' => $page,
+                'storeId' => $storeId
+            ));
             return $this->_storeManager->getStore()->getBaseUrl();
         }
     }
@@ -283,30 +293,28 @@ class Data extends AbstractHelper
 
     public function loadSelector($product, $selector, $childProducts = null)
     {
-        switch ($selector) {
-            case 'id':
-                return (string) $product->getId();
-            default:
-                $values = array();
-                if (!empty($childProducts)) {
-                    foreach ($childProducts as $product) {
-                        $value = $this->loadAttributeValue($product, $selector);
-                        if (!empty($value)) {
-                            array_push($values, $value);
-                        }
-                    }
+        $values = array();
+        if (!empty($childProducts)) {
+            foreach ($childProducts as $childProduct) {
+                $value = $this->loadAttributeValue($childProduct, $selector);
+                if (!empty($value)) {
+                    array_push($values, $value);
                 }
-                if (!empty($values)) {
-                    return implode(',', $values);
-                } else {
-                    return $this->loadAttributeValue($product, $selector);
-                }
+            }
+        }
+        if (!empty($values)) {
+            return implode(',', $values);
+        } else {
+            return $this->loadAttributeValue($product, $selector);
         }
     }
 
     private function loadAttributeValue($product, $selector)
     {
         try {
+            if ($selector == 'id') {
+                return (string) $product->getId();
+            }
             if ($attribute = $product->getResource()->getAttribute($selector)) {
                 $data = $product->getData($selector);
                 $label = $attribute->getSource()->getOptionText($data);
@@ -317,23 +325,21 @@ class Data extends AbstractHelper
             } else {
                 return $label = '';
             }
+        } catch(\Throwable $e) {
+            $description = 'Unable get attribute value for selector ' . $selector;
+            $this->_trustpilotLog->error($e, $description, array(
+                'product' => $product,
+                'selector' => $selector
+            ));
+            return '';
         } catch(\Exception $e) {
+            $description = 'Unable get attribute value for selector ' . $selector;
+            $this->_trustpilotLog->error($e, $description, array(
+                'product' => $product,
+                'selector' => $selector
+            ));
             return '';
         }
-    }    
-
-    public function log($message, $exception)
-    {
-        $scope = $this->getScope();
-        $storeId = $this->getWebsiteOrStoreId();
-        $this->_logger->error($message, ['exception' => $exception]);
-        $log = array(
-            'platform' => 'Magento2',
-            'version'  => \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PLUGIN_VERSION,
-            'key'      => $this->getKey($scope, $storeId),
-            'message'  => $message,
-        );
-        $this->_httpClient->postLog($log, $storeId);
     }
 
     public function getStoreInformation() {
@@ -350,7 +356,7 @@ class Data extends AbstractHelper
                 $item = array(
                     'ids'       => array((string) $store->getWebsite()->getId(), (string) $store->getGroupId(), (string) $store->getStoreId()),
                     'names'     => $names,
-                    'domain'    => parse_url($store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB), PHP_URL_HOST),
+                    'domain'    => parse_url($store->getBaseUrl(UrlInterface::URL_TYPE_WEB), PHP_URL_HOST),
                 );
                 array_push($result, $item);
             }
@@ -362,5 +368,18 @@ class Data extends AbstractHelper
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $state =  $objectManager->get('Magento\Framework\App\State');
         return 'adminhtml' === $state->getAreaCode();
+    }
+
+    public function getBusinessInformation($scope, $scopeId) {
+        $config = $this->scopeConfig;
+        $useSecure = $config->getValue('web/secure/use_in_frontend', $scope, $scopeId);
+        return array(
+            'website' => $config->getValue('web/'. ($useSecure ? 'secure' : 'unsecure') .'/base_url', $scope, $scopeId),
+            'company' => $config->getValue('general/store_information/name', $scope, $scopeId),
+            'name' => $config->getValue('trans_email/ident_general/name', $scope, $scopeId),
+            'email' => $config->getValue('trans_email/ident_general/email', $scope, $scopeId),
+            'country' => $config->getValue('general/store_information/country_id', $scope, $scopeId),
+            'phone' => $config->getValue('general/store_information/phone', $scope, $scopeId)
+        );
     }
 }

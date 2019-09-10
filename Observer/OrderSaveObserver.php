@@ -3,12 +3,12 @@ namespace Trustpilot\Reviews\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
-use Psr\Log\LoggerInterface;
 use Trustpilot\Reviews\Helper\OrderData;
 use Trustpilot\Reviews\Helper\Data;
 use Trustpilot\Reviews\Helper\TrustpilotHttpClient;
 use Magento\Config\Model\ResourceModel\Config;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
+use Trustpilot\Reviews\Helper\TrustpilotLog;
 
 define('__ACCEPTED__', 202);
 
@@ -16,23 +16,23 @@ class OrderSaveObserver implements ObserverInterface
 {   
 
     protected $_trustpilotHttpClient;
-    protected $_logger;
     protected $_orderData;
     protected $_helper;
     protected $_config;
+    protected $_trustpilotLog;
     
     public function __construct(
-        LoggerInterface $logger, 
         TrustpilotHttpClient $trustpilotHttpClient,
         OrderData $orderData,
         Data $helper,
-        Config $config)
+        Config $config,
+        TrustpilotLog $trustpilotLog)
     {
         $this->_helper = $helper;
         $this->_trustpilotHttpClient = $trustpilotHttpClient;
-        $this->_logger = $logger; 
         $this->_orderData = $orderData;
         $this->_config = $config;
+        $this->_trustpilotLog = $trustpilotLog;
     }
   
     public function execute(EventObserver $observer) 
@@ -62,10 +62,22 @@ class OrderSaveObserver implements ObserverInterface
                     $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
                 }
             }
+        } catch (\Throwable $e) {
+            $description = 'Unable to get invitation data in OrderSaveObserver';
+            $vars = array(
+                'storeId' => isset($storeId) ? $storeId : null,
+                'orderStatus' => isset($orderStatus) ? $orderStatus : null,
+                'key' => isset($key) ? $key : null,
+            );
+            $this->_trustpilotLog->error($e, $description, $vars);
         } catch (\Exception $e) {
-            $error = array('message' => $e->getMessage());
-            $data = array('error' => $error);
-            $this->_trustpilotHttpClient->postInvitation($key, $storeId, $data);
+            $description = 'Unable to get invitation data in OrderSaveObserver';
+            $vars = array(
+                'storeId' => isset($storeId) ? $storeId : null,
+                'orderStatus' => isset($orderStatus) ? $orderStatus : null,
+                'key' => isset($key) ? $key : null,
+            );
+            $this->_trustpilotLog->error($e, $description, $vars);
         }
     }
 
@@ -87,8 +99,12 @@ class OrderSaveObserver implements ObserverInterface
                 $failed_orders->{$order['referenceId']} = base64_encode('Automatic invitation sending failed');
                 $this->saveConfig('failed_orders', json_encode($failed_orders), $scope, $storeId);
             }
+        } catch (\Throwable $e) {
+            $description = 'Unable to handle response from invitations API';
+            $this->_trustpilotLog->error($e, $description, array('storeId' => $storeId));
         } catch (\Exception $e) {
-            $message = 'Unable to update past orders. Error: ' . $e->getMessage();
+            $description = 'Unable to handle response from invitations API';
+            $this->_trustpilotLog->error($e, $description, array('storeId' => $storeId));
         }
     }
 

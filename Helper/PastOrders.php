@@ -11,17 +11,20 @@ class PastOrders extends AbstractHelper
     protected $_trustpilotHttpClient;
     protected $_orderData;
     protected $_orders;
+    protected $_trustpilotLog;
 
     public function __construct(
         Data $helper,
         TrustpilotHttpClient $trustpilotHttpClient,
         OrderData $orderData,
-        Order $orders)
+        Order $orders,
+        TrustpilotLog $trustpilotLog)
     {
         $this->_helper = $helper;
         $this->_trustpilotHttpClient = $trustpilotHttpClient;
         $this->_orderData = $orderData;
         $this->_orders = $orders;
+        $this->_trustpilotLog = $trustpilotLog;
     }
 
     public function sync($period_in_days, $scope, $storeId)
@@ -63,9 +66,12 @@ class PastOrders extends AbstractHelper
                     $post_batch = $this->getInvitationsForPeriod($sales_collection, $collect_product_data, $pageId);
                 }
             }
+        } catch (\Throwable $e) {
+            $description = 'Unable to sync past orders';
+            $this->_trustpilotLog->error($e, $description);
         } catch (\Exception $e) {
-            $message = 'Failed to sync past orders. Error: ' . $e->getMessage();
-            $this->_helper->log($message, $e);
+            $description = 'Unable to sync past orders';
+            $this->_trustpilotLog->error($e, $description);
         }
         $this->_helper->setConfig('sync_in_progress', 'false', $scope, $storeId);
     }
@@ -106,9 +112,12 @@ class PastOrders extends AbstractHelper
                     }
                 }
             }
+        } catch (\Throwable $e) {
+            $description = 'Unable to resync past orders';
+            $this->_trustpilotLog->error($e, $description);
         } catch (\Exception $e) {
-            $message = 'Failed to resync failed orders. Error: ' . $e->getMessage();
-            $this->_helper->log($message, $e);
+            $description = 'Unable to resync past orders';
+            $this->_trustpilotLog->error($e, $description);
         }
         $this->_helper->setConfig('sync_in_progress', 'false', $scope, $storeId);
     }

@@ -7,7 +7,6 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
-use \Psr\Log\LoggerInterface;
 use \Magento\Catalog\Model\ProductFactory;
 
 class OrderData extends AbstractHelper
@@ -15,20 +14,20 @@ class OrderData extends AbstractHelper
     protected $_storeManager;
     protected $_helper;
     protected $_categoryCollectionFactory;
-    protected $_logger;
     protected $_productFactory;
+    protected $_trustpilotLog;
 
     public function __construct(
         StoreManagerInterface $storeManager,
         Data $helper,
         CategoryCollectionFactory $categoryCollectionFactory,
-        LoggerInterface $logger,
+        TrustpilotLog $trustpilotLog,
         ProductFactory $_productFactory)
     {
         $this->_storeManager = $storeManager;
         $this->_helper = $helper;
         $this->_categoryCollectionFactory = $categoryCollectionFactory;
-        $this->_logger = $logger;
+        $this->_trustpilotLog = $trustpilotLog;
         $this->_productFactory = $_productFactory;
     }
 
@@ -47,7 +46,19 @@ class OrderData extends AbstractHelper
             $invitation['orderStatusName'] = $order->getStatus() ? $order->getStatusLabel() : '';
             try {
                 $invitation['templateParams'] = array((string)$this->getWebsiteId($order), (string)$this->getGroupId($order), (string)$order->getStoreId());
-            } catch (\Exception $ex) {}
+            } catch (\Throwable $e) {
+                $description = 'Unable to get invitation data';
+                $this->_trustpilotLog->error($e, $description, array(
+                    'hook' => $hook,
+                    'collect_product_data' => $collect_product_data
+                ));
+            } catch (\Exception $e) {
+                $description = 'Unable to get invitation data';
+                $this->_trustpilotLog->error($e, $description, array(
+                    'hook' => $hook,
+                    'collect_product_data' => $collect_product_data
+                ));
+            }
 
             if ($collect_product_data == \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA) {
                 $products = $this->getProducts($order);
@@ -83,29 +94,45 @@ class OrderData extends AbstractHelper
         try {
             if (!($this->is_empty($order->getCustomerEmail())))
                 return $order->getCustomerEmail();
+        } catch(\Throwable $e) {
+            $description = 'Unable to get customer email from an order';
+            $this->_trustpilotLog->error($e, $description);
         } catch(\Exception $e) {
-            // Just going to the next check
+            $description = 'Unable to get customer email from an order';
+            $this->_trustpilotLog->error($e, $description);
         }
 
         try {
             if (!($this->is_empty($order->getShippingAddress()->getEmail())))
                 return $order->getShippingAddress()->getEmail();
+        } catch (\Throwable $e) {
+            $description = 'Unable to get customer email from a shipping address';
+            $this->_trustpilotLog->error($e, $description);
         } catch (\Exception $e) {
-            // Just going to the next check
+            $description = 'Unable to get customer email from a shipping address';
+            $this->_trustpilotLog->error($e, $description);
         }
 
         try {
             if (!($this->is_empty($order->getBillingAddress()->getEmail())))
                 return $order->getBillingAddress()->getEmail();
+        } catch (\Throwable $e) {
+            $description = 'Unable to get customer email from a billing address';
+            $this->_trustpilotLog->error($e, $description);
         } catch (\Exception $e) {
-            // Just going to the next check
+            $description = 'Unable to get customer email from a billing address';
+            $this->_trustpilotLog->error($e, $description);
         }
 
         try {
             if (!($this->is_empty($order->getCustomerId())))
                 return $this->_customer->load($order->getCustomerId())->getEmail();
+        } catch (\Throwable $e) {
+            $description = 'Unable to get customer email from customer data';
+            $this->_trustpilotLog->error($e, $description);
         } catch (\Exception $e) {
-            // Just skipping an email
+            $description = 'Unable to get customer email from customer data';
+            $this->_trustpilotLog->error($e, $description);
         }
 
         return '';
@@ -150,8 +177,10 @@ class OrderData extends AbstractHelper
                 $sku = $this->_helper->loadSelector($product, $skuSelector, $childProducts);
                 $mpn = $this->_helper->loadSelector($product, $mpnSelector, $childProducts);
                 $gtin = $this->_helper->loadSelector($product, $gtinSelector, $childProducts);
+                $productId = $this->_helper->loadSelector($product, 'id', $childProducts);
 
                 $productData = array(
+                    'productId' => $productId,
                     'productUrl' => $product->getProductUrl(),
                     'name' => $product->getName(),
                     'sku' => $sku ? $sku : '',
@@ -165,9 +194,14 @@ class OrderData extends AbstractHelper
 
                 array_push($products, $productData);
             }
+        } catch (\Throwable $e) {
+            // Just skipping products data if we are not able to collect it
+            $description = 'Unable to get product data';
+            $this->_trustpilotLog->error($e, $description);
         } catch (\Exception $e) {
             // Just skipping products data if we are not able to collect it
-            $this->_logger->error('Unable to get product data: ' . $e->getMessage() . 'Line ' . $e->getLine());
+            $description = 'Unable to get product data';
+            $this->_trustpilotLog->error($e, $description);
         }
 
         return $products;
@@ -192,7 +226,13 @@ class OrderData extends AbstractHelper
                 'tags' => null,
                 'brand' => $product->getBrand() ? $product->getBrand() : $manufacturer,
             ));
+        } catch (\Throwable $e) {
+            $description = 'Unable to get product extra fields';
+            $this->_trustpilotLog->error($e, $description);
+            return $productData;
         } catch (\Exception $e) {
+            $description = 'Unable to get product extra fields';
+            $this->_trustpilotLog->error($e, $description);
             return $productData;
         }
     }

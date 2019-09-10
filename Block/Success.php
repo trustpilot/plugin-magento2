@@ -8,6 +8,7 @@ use Magento\Framework\View\Element\Template;
 use Trustpilot\Reviews\Helper\Data;
 use Trustpilot\Reviews\Helper\OrderData;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
+use Trustpilot\Reviews\Helper\TrustpilotLog;
 
 class Success extends Template
 {
@@ -15,6 +16,7 @@ class Success extends Template
     protected $_checkoutSession;
     protected $_helper;
     protected $_orderData;
+    protected $_trustpilotLog;
 
     public function __construct(
         Context $context,
@@ -22,12 +24,14 @@ class Success extends Template
         Session $checkoutSession,
         Data $helper,
         OrderData $orderData,
+        TrustpilotLog $trustpilotLog,
         array $data = [])
     {
         $this->_salesFactory = $salesOrderFactory;
         $this->_checkoutSession = $checkoutSession;
         $this->_helper = $helper;
         $this->_orderData = $orderData;
+        $this->_trustpilotLog = $trustpilotLog;
 
         parent::__construct($context, $data);
     }
@@ -45,16 +49,44 @@ class Success extends Template
             try {
                 $data['totalCost'] = $order->getGrandTotal();
                 $data['currency'] = $order->getOrderCurrencyCode();
-            } catch (\Exception $ex) {}
+            } catch (\Throwable $e) {
+                $description = 'Unable to get order total cost';
+                $this->_trustpilotLog->error($e, $description, array(
+                    'orderId' => $orderId,
+                    'storeId' => $storeId
+                ));
+            } catch (\Exception $e) {
+                $description = 'Unable to get order total cost';
+                $this->_trustpilotLog->error($e, $description, array(
+                    'orderId' => $orderId,
+                    'storeId' => $storeId
+                ));
+            }
 
             if (!in_array('trustpilotOrderConfirmed', $general_settings->mappedInvitationTrigger)) {
                 $data['payloadType'] = 'OrderStatusUpdate';
             }
 
             return json_encode($data, JSON_HEX_APOS);
+        } catch (\Throwable $e) {
+            $error = array('message' => $e->getMessage());
+            $data = array('error' => $error);
+            $vars = array(
+                'orderId' => isset($orderId) ? $orderId : null,
+                'storeId' => isset($storeId) ? $storeId : null,
+            );
+            $description = 'Unable to get order data';
+            $this->_trustpilotLog->error($e, $description, $vars);
+            return json_encode($data, JSON_HEX_APOS);
         } catch (\Exception $e) {
             $error = array('message' => $e->getMessage());
             $data = array('error' => $error);
+            $vars = array(
+                'orderId' => isset($orderId) ? $orderId : null,
+                'storeId' => isset($storeId) ? $storeId : null,
+            );
+            $description = 'Unable to get order data';
+            $this->_trustpilotLog->error($e, $description, $vars);
             return json_encode($data, JSON_HEX_APOS);
         }            
     }
