@@ -89,7 +89,7 @@ class Trustpilot extends Template
         }
     }
 
-    public function getProductName()
+    public function getProductName($scope, $storeId)
     {
         return $this->_helper->getFirstProduct($scope, $storeId)->getName();
     }

@@ -10,6 +10,11 @@ function receiveSettings(e) {
         return;
     }
     const data = e.data;
+
+    if (typeof data !== 'string') {
+        return;
+    }
+
     if (data.startsWith('sync:') || data.startsWith('showPastOrdersInitial:')) {
         const split = data.split(':');
         const action = {};
@@ -33,32 +38,33 @@ function receiveSettings(e) {
         action['skuSelector'] = split[1];
         this.submitCheckProductSkusCommand(action);
     } else if (data === 'signup_data') {
-        sendSignupData();
+        this.sendSignupData();
     } else if (data === 'update') {
-        updateplugin();
+        this.updateplugin();
     } else if (data === 'reload') {
-        reloadSettings();
-    } else if (data && JSON.parse(data).TrustBoxPreviewMode) {
-        TrustBoxPreviewMode(data);
+        this.reloadSettings();
     } else {
-        handleJSONMessage(data);
+        this.handleJSONMessage(data);
     }
 }
 
 function handleJSONMessage(data) {
-    const parsedData = JSON.parse(data);
-    if (parsedData.window) {
-        this.updateIframeSize(parsedData);
-    } else if (parsedData.type === 'submit') {
-        this.submitSettings(parsedData);
-    } else if (parsedData.trustbox) {
-        const iframe = document.getElementById('trustbox_preview_frame');
-        iframe.contentWindow.postMessage(JSON.stringify(parsedData.trustbox), "*");
+    const parsedData = {};
+    if (tryParseJson(data, parsedData)) {
+        if (parsedData.TrustBoxPreviewMode) {
+            this.trustBoxPreviewMode(parsedData);
+        } else if (parsedData.window) {
+            this.updateIframeSize(parsedData);
+        } else if (parsedData.type === 'submit') {
+            this.submitSettings(parsedData);
+        } else if (parsedData.trustbox) {
+            const iframe = document.getElementById('trustbox_preview_frame');
+            iframe.contentWindow.postMessage(JSON.stringify(parsedData.trustbox), "*");
+        }
     }
 }
 
-function TrustBoxPreviewMode(data) {
-    const settings = JSON.parse(data);
+function trustBoxPreviewMode(settings) {
     const div = document.getElementById('trustpilot-trustbox-preview');
     if (settings.TrustBoxPreviewMode.enable) {
         div.hidden = false;
@@ -69,13 +75,10 @@ function TrustBoxPreviewMode(data) {
 
 function receiveInternalData(e) {
     const data = e.data;
-    if (data && typeof data === 'string') {
-        const jsonData = JSON.parse(data);
-        if (jsonData && jsonData.type === 'updatePageUrls') {
-            submitSettings(jsonData);
-        }
-        if (jsonData && jsonData.type === 'newTrustBox') {
-            submitSettings(jsonData);
+    const parsedData = {};
+    if (data && typeof data === 'string' && tryParseJson(data, parsedData)) {
+        if (parsedData.type === 'updatePageUrls' || parsedData.type === 'newTrustBox') {
+            this.submitSettings(jsonData);
         }
     }
 }
@@ -233,4 +236,13 @@ function sendSignupData() {
         }
     };
     xhr.send(encodeSettings(data));
+}
+
+function tryParseJson(str, out) {
+    try {
+        out = Object.assign(out, JSON.parse(str));
+    } catch (e) {
+        return false;
+    }
+    return true;
 }
