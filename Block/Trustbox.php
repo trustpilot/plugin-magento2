@@ -48,8 +48,9 @@ class Trustbox extends Template
 
     public function loadTrustboxes()
     {
+        $scope = $this->_helper->getScope();
         $storeId = $this->_helper->getWebsiteOrStoreId();
-        $settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId));
+        $settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId, $scope));
         $trustboxSettings = $settings->trustbox;
         if (isset($trustboxSettings->trustboxes)) {
             $currentUrl = $this->getCurrentUrl();
@@ -79,7 +80,7 @@ class Trustbox extends Template
         $data = [];
         $skuSelector = empty($settings->skuSelector) || $settings->skuSelector == 'none' ? 'sku' : $settings->skuSelector;
         foreach ($settings->trustbox->trustboxes as $trustbox) {
-            if (rtrim($trustbox->page, '/') == rtrim($page, '/') && $trustbox->enabled == 'enabled') {
+            if ((rtrim($trustbox->page, '/') == rtrim($page, '/') || $this->checkCustomPage($trustbox->page, $page)) && $trustbox->enabled == 'enabled') {
                 $current_product = $this->_registry->registry('current_product');
                 if ($current_product) {
                     $skus = array();
@@ -105,5 +106,13 @@ class Trustbox extends Template
             }
         }
         return $data;
+    }
+
+    private function checkCustomPage($tbPage, $page) {
+        return (
+            $tbPage == strtolower(base64_encode($page . '/')) ||
+            $tbPage == strtolower(base64_encode($page)) ||
+            $tbPage == strtolower(base64_encode(rtrim($page, '/')))
+        );
     }
 }

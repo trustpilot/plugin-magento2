@@ -67,7 +67,7 @@ class Admin extends Field
     public function getSku($scope, $storeId)
     {
         try {
-            $product = $this->_helper->getFirstProduct();
+            $product = $this->_helper->getFirstProduct($scope, $storeId);
             if ($product) {
                 $skuSelector = json_decode($this->_helper->getConfig('master_settings_field', $storeId, $scope))->skuSelector;
                 $productId = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PRODUCT_ID_PREFIX . $this->_helper->loadSelector($product, 'id');
@@ -91,9 +91,9 @@ class Admin extends Field
         }
     }
 
-    public function getProductName()
+    public function getProductName($scope, $storeId)
     {
-        return $this->_helper->getFirstProduct()->getName();
+        return $this->_helper->getFirstProduct($scope, $storeId)->getName();
     }
 
     protected function _getElementHtml(AbstractElement $element)

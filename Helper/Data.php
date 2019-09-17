@@ -202,12 +202,24 @@ class Data extends AbstractHelper
         return $urls;
     }
 
-    public function getFirstProduct()
+    public function getDefaultStoreIdByWebsiteId($websiteId) {
+        foreach ($this->_storeManager->getWebsites() as $website) {
+            if ($website->getId() === $websiteId) {
+                $storeIds = $website->getStoreIds();
+                return isset($storeIds[0]) ? $storeIds[0] : 0;
+            }
+        }
+    }
+
+    public function getFirstProduct($scope, $storeId)
     {
+        if ($scope === 'website' || $scope === 'websites') {
+            $storeId = $this->getDefaultStoreIdByWebsiteId($storeId);
+        }
         $collection = $this->_productCollectionFactory->create();
         $collection->addAttributeToSelect('*');
-        $collection->setStore($this->getWebsiteOrStoreId());
-        $collection->addStoreFilter($this->getWebsiteOrStoreId());
+        $collection->setStore($storeId);
+        $collection->addStoreFilter($storeId);
         $collection->addAttributeToFilter('status', 1);
         $collection->addAttributeToFilter('visibility', array(2, 3, 4));
         $collection->setPageSize(1);
