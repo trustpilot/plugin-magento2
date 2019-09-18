@@ -194,9 +194,9 @@ class Data extends AbstractHelper
     public function getPageUrls($scope, $storeId)
     {
         $pageUrls = new \stdClass();
-        $pageUrls->landing = $this->getPageUrl('trustpilot_trustbox_homepage', $storeId);
-        $pageUrls->category = $this->getPageUrl('trustpilot_trustbox_category', $storeId);
-        $pageUrls->product = $this->getPageUrl('trustpilot_trustbox_product', $storeId);
+        $pageUrls->landing = $this->getPageUrl('trustpilot_trustbox_homepage', $scope, $storeId);
+        $pageUrls->category = $this->getPageUrl('trustpilot_trustbox_category', $scope, $storeId);
+        $pageUrls->product = $this->getPageUrl('trustpilot_trustbox_product', $scope, $storeId);
         $customPageUrls = json_decode($this->getConfig('page_urls', $storeId, $scope));
         $urls = (object) array_merge((array) $customPageUrls, (array) $pageUrls);
         return $urls;
@@ -226,9 +226,12 @@ class Data extends AbstractHelper
         return $collection->getFirstItem();
     }
 
-    public function getPageUrl($page, $storeId)
+    public function getPageUrl($page, $scope, $storeId)
     {
         try {
+            if ($scope === 'website' || $scope === 'websites') {
+                $storeId = $this->getDefaultStoreIdByWebsiteId($storeId);
+            }
             $storeCode = $this->_storeManager->getStore($storeId)->getCode();
             switch ($page) {
                 case 'trustpilot_trustbox_homepage':
@@ -244,7 +247,7 @@ class Data extends AbstractHelper
                     $productUrl = strtok($category->getUrl(),'?').'?___store='.$storeCode;
                     return $productUrl;
                 case 'trustpilot_trustbox_product':
-                    $product = $this->getFirstProduct();
+                    $product = $this->getFirstProduct('store', $storeId);
                     $productUrl = strtok($product->setStoreId($storeId)->getUrlInStore(),'?').'?___store='.$storeCode;
                     return $productUrl;
             }
