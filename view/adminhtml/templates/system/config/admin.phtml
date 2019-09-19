@@ -11,6 +11,19 @@
     const scopeId = "<?php echo $storeId ?>";
     const trustBoxPreviewUrl = '<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_TRUSTBOX_PREVIEW_URL ?>';
 </script>
+<script type="text/javascript">
+    function onTrustpilotIframeLoad() {
+        if (typeof sendSettings === "function" && typeof sendPastOrdersInfo === "function") {
+            sendSettings();
+            sendPastOrdersInfo();
+        } else {
+            window.addEventListener('load', function () {
+                sendSettings();
+                sendPastOrdersInfo();
+            });
+        }
+    }
+</script>
 <div tabindex="0">
     <iframe
         src='<?php echo $this->getIntegrationAppUrl(); ?>'
@@ -29,7 +42,7 @@
         data-product-identification-options = '<?php echo $this->getProductIdentificationOptions(); ?>'
         data-is-from-marketplace='<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_IS_FROM_MARKETPLACE ?>'
         data-configuration-scope-tree = '<?php echo $this->getStoreInformation(); ?>'
-        onload="sendSettings(); sendPastOrdersInfo();"
+        onload="onTrustpilotIframeLoad();"
     >
     </iframe>
    <div id='trustpilot-trustbox-preview'

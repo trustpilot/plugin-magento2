@@ -137,7 +137,7 @@ function submitSettings(parsedData) {
         data.settings = encodeURIComponent(JSON.stringify(parsedData.settings));
         const frame = document.getElementById('trustbox_preview_frame');
         if (frame) {
-            frame.dataset.settings = btoa(JSON.stringify(parsedData.settings));
+            frame.dataset.settings = btoa(encodeURIComponent(JSON.stringify(parsedData.settings)));
         } else {
             console.log('trustbox_preview_frame is missing. Skipping...');
         }
