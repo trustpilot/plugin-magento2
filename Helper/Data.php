@@ -29,7 +29,6 @@ class Data extends AbstractHelper
     protected $_configWriter;
     protected $_searchCriteriaBuilder;
     protected $_attributeRepository;
-    protected $_httpClient;
     protected $_storeRepository;
     protected $_integrationAppUrl;
     protected $_reinitableConfig;
@@ -44,7 +43,6 @@ class Data extends AbstractHelper
         WriterInterface $configWriter,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         AttributeRepositoryInterface $attributeRepository,
-        TrustpilotHttpClient $httpClient,
         StoreRepository $storeRepository,
         ReinitableConfigInterface $reinitableConfig,
         TrustpilotLog $trustpilotLog
@@ -58,7 +56,6 @@ class Data extends AbstractHelper
         $this->_configWriter = $configWriter;
         parent::__construct($context);
         $this->_request = $context->getRequest();
-        $this->_httpClient = $httpClient;
         $this->_storeRepository = $storeRepository;
         $this->_integrationAppUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_INTEGRATION_APP_URL;
         $this->_reinitableConfig = $reinitableConfig;
@@ -106,6 +103,12 @@ class Data extends AbstractHelper
         $config['past_orders'] = '0';
         $config['failed_orders'] = '{}';
         $config['custom_trustboxes'] = '{}';
+        $config['plugin_status'] = json_encode(
+            array(
+                'pluginStatus' => 200,
+                'blockedDomains' => array(),
+            )
+        );
 
         if (isset($config[$key])) {
             return $config[$key];
@@ -222,6 +225,7 @@ class Data extends AbstractHelper
         $collection->addStoreFilter($storeId);
         $collection->addAttributeToFilter('status', 1);
         $collection->addAttributeToFilter('visibility', array(2, 3, 4));
+        $collection->addUrlRewrite();
         $collection->setPageSize(1);
         return $collection->getFirstItem();
     }
@@ -242,6 +246,7 @@ class Data extends AbstractHelper
                     $collection->setStore($storeId);
                     $collection->addAttributeToFilter('is_active', 1);
                     $collection->addAttributeToFilter('children_count', 0);
+                    $collection->addUrlRewriteToResult();
                     $collection->setPageSize(1);
                     $category = $collection->getFirstItem();
                     $productUrl = strtok($category->getUrl(),'?').'?___store='.$storeCode;

@@ -181,6 +181,7 @@ function sendSettings() {
     settings.basis = 'plugin';
     settings.productIdentificationOptions = JSON.parse(attrs.productIdentificationOptions);
     settings.configurationScopeTree = JSON.parse(atob(attrs.configurationScopeTree));
+    settings.pluginStatus = JSON.parse(atob(attrs.pluginStatus));
     settings.isFromMarketplace = attrs.isFromMarketplace;
 
     if (settings.trustbox.trustboxes && attrs.sku) {

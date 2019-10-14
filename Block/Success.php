@@ -6,9 +6,12 @@ use Magento\Sales\Model\Order;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\View\Element\Template;
 use Trustpilot\Reviews\Helper\Data;
+use Trustpilot\Reviews\Helper\TrustpilotPluginStatus;
 use Trustpilot\Reviews\Helper\OrderData;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use Trustpilot\Reviews\Helper\TrustpilotLog;
+use \Magento\Store\Model\StoreManagerInterface;
+use \Magento\Framework\UrlInterface;
 
 class Success extends Template
 {
@@ -17,6 +20,8 @@ class Success extends Template
     protected $_helper;
     protected $_orderData;
     protected $_trustpilotLog;
+    protected $_storeManager;
+    protected $_pluginStatus;
 
     public function __construct(
         Context $context,
@@ -25,13 +30,17 @@ class Success extends Template
         Data $helper,
         OrderData $orderData,
         TrustpilotLog $trustpilotLog,
-        array $data = [])
+        array $data = [],
+        StoreManagerInterface $storeManager,
+        TrustpilotPluginStatus $pluginStatus)
     {
         $this->_salesFactory = $salesOrderFactory;
         $this->_checkoutSession = $checkoutSession;
         $this->_helper = $helper;
         $this->_orderData = $orderData;
         $this->_trustpilotLog = $trustpilotLog;
+        $this->_storeManager = $storeManager;
+        $this->_pluginStatus = $pluginStatus;
 
         parent::__construct($context, $data);
     }
@@ -42,6 +51,12 @@ class Success extends Template
             $orderId = $this->_checkoutSession->getLastOrderId();
             $order   = $this->_salesFactory->load($orderId);
             $storeId = $order->getStoreId();
+            
+            $origin = $this->_storeManager->getStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_WEB);
+            $code = $this->_pluginStatus->checkPluginStatus($origin, $storeId);
+            if ($code > 250 && $code < 254) {
+                return 'undefined';
+            }
             
             $general_settings = json_decode($this->_helper->getConfig('master_settings_field', $storeId, StoreScopeInterface::SCOPE_STORES))->general;
             $data = $this->_orderData->getInvitation($order, 'magento2_success', \Trustpilot\Reviews\Model\Config::WITH_PRODUCT_DATA);
