@@ -252,18 +252,19 @@ class OrderData extends AbstractHelper
             $categoryIds = $product->getCategoryIds();
         }
 
-        $catCollection = $this->_categoryCollectionFactory->create();
-        $catCollection
-            ->addAttributeToSelect('*')
-            ->addAttributeToFilter('entity_id', $categoryIds);
+        if (!empty($categoryIds)) {
+            $catCollection = $this->_categoryCollectionFactory->create();
+            $catCollection
+                ->addAttributeToSelect('*')
+                ->addAttributeToFilter('entity_id', $categoryIds);
 
-        foreach ($catCollection as $category) {
-            array_push($categories, $category->getName());
+            foreach ($catCollection as $category) {
+                array_push($categories, $category->getName());
+            }
         }
-
         return $categories;
     }
-    
+
     function getAllImages($product, $childProducts = null) {
         $images = array();
 
@@ -274,7 +275,7 @@ class OrderData extends AbstractHelper
                 }
             }
         }
-        
+
         foreach ($product->getMediaGalleryImages() as $image) {
             array_push($images, $image->getUrl());
         }
@@ -292,11 +293,11 @@ class OrderData extends AbstractHelper
                     if (isset($imageData['media_type']) && $imageData['media_type'] == 'external-video') {
                         array_push($videos, $imageData['video_url']);
                     }
-                    
+
                 }
             }
         }
-        
+
         foreach ($product->getMediaGalleryImages() as $image) {
             $imageData = $image->getData();
             if (isset($imageData['media_type']) && $imageData['media_type'] == 'external-video') {

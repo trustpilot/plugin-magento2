@@ -42,6 +42,7 @@
         data-product-identification-options = '<?php echo $this->getProductIdentificationOptions(); ?>'
         data-is-from-marketplace='<?php echo \Trustpilot\Reviews\Model\Config::TRUSTPILOT_IS_FROM_MARKETPLACE ?>'
         data-configuration-scope-tree = '<?php echo $this->getStoreInformation(); ?>'
+        data-plugin-status = '<?php echo $this->getPluginStatus($scope, $storeId); ?>'
         onload="onTrustpilotIframeLoad();"
     >
     </iframe>
