@@ -1,53 +1,67 @@
 <?php /* @var $block \Trustpilot\Reviews\Block\Head */?>
 <script type="text/javascript" async>
-	var w = document.createElement("script");
+    var w = document.createElement("script");
     w.type = "text/javascript";
     w.src = "<?php echo $block->getWidgetScriptUrl(); ?>";
     w.async = true;
     document.head.appendChild(w);
 </script>
 <script type="text/javascript">
-	(function(w,d,s,r,n){w.TrustpilotObject=n;w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)};
-	a=d.createElement(s);a.async=1;a.src=r;a.type='text/java'+s;f=d.getElementsByTagName(s)[0];
-	f.parentNode.insertBefore(a,f)})(window,document,'script', '<?php echo $block->getScriptUrl(); ?>', 'tp');
-	tp('register','<?php echo $block->getInstallationKey(); ?>');
+    (function(w,d,s,r,n){w.TrustpilotObject=n;w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)};
+    a=d.createElement(s);a.async=1;a.src=r;a.type='text/java'+s;f=d.getElementsByTagName(s)[0];
+    f.parentNode.insertBefore(a,f)})(window,document,'script', '<?php echo $block->getScriptUrl(); ?>', 'tp');
+    tp('register','<?php echo $block->getInstallationKey(); ?>');
 </script>
 <script type="text/javascript">
-	function inIframe () {
-		try {
-			return window.self !== window.top;
-		} catch (e) {
-			return false;
-		}
-	}
+    function inIframe () {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return false;
+        }
+    }
 
-	if (inIframe()) {
-		window.addEventListener('message', function(e) {
-			var adminOrign = new URL(window.location).hostname;
-			if (!e.data || e.origin.indexOf(adminOrign) === -1) {
-				return;
-			}
-			if (typeof TrustpilotPreview !== 'undefined') {
-				if (typeof e.data === 'string' && e.data === 'submit') {
-					TrustpilotPreview.sendTrustboxes();
-				} else {
-					jsonData = JSON.parse(e.data);
-					if (jsonData.trustbox) {
-						TrustpilotPreview.setSettings(jsonData.trustbox);
-					} else if (jsonData.customised) {
-						TrustpilotPreview.updateActive(jsonData.customised);
-					}
-				}
-			} else {
-				var p = document.createElement("script");
-				p.type = "text/javascript";
-				p.onload = function () {
-					const iFrame = e.source.parent.document.getElementById('configuration_iframe').contentWindow;
-					TrustpilotPreview.init(['<?php echo $block->getPreviewCssUrl(); ?>'], JSON.parse(e.data), iFrame, e.source);
-				};
-				p.src = '<?php echo $block->getPreviewScriptUrl(); ?>';
-				document.head.appendChild(p);
-			}
-		});
-	}
+    function tryParseJson(str) {
+        if (typeof str === 'string') {
+            try {
+                return JSON.parse(str);
+            } catch (e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    if (inIframe()) {
+        window.addEventListener('message', function(e) {
+            var adminOrign = new URL(window.location).hostname;
+            if (!e.data || e.origin.indexOf(adminOrign) === -1) {
+                return;
+            }
+            if (typeof TrustpilotPreview !== 'undefined') {
+                if (typeof e.data === 'string' && e.data === 'submit') {
+                    TrustpilotPreview.sendTrustboxes();
+                } else {
+                    jsonData = tryParseJson(e.data);
+                    if (jsonData.trustbox) {
+                        TrustpilotPreview.setSettings(jsonData.trustbox);
+                    } else if (jsonData.customised) {
+                        TrustpilotPreview.updateActive(jsonData.customised);
+                    }
+                }
+            } else {
+                var settings = tryParseJson(e.data);
+                if (settings) {
+                    var p = document.createElement("script");
+                    p.type = "text/javascript";
+                    p.onload = function () {
+                        const iFrame = e.source.parent.document.getElementById('configuration_iframe').contentWindow;
+                        TrustpilotPreview.init(['<?php echo $block->getPreviewCssUrl(); ?>'], settings, iFrame, e.source);
+                    };
+                    p.src = '<?php echo $block->getPreviewScriptUrl(); ?>';
+                    document.head.appendChild(p);
+                }
+            }
+        });
+    }
 </script>

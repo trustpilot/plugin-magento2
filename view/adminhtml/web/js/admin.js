@@ -78,7 +78,7 @@ function receiveInternalData(e) {
     const parsedData = {};
     if (data && typeof data === 'string' && tryParseJson(data, parsedData)) {
         if (parsedData.type === 'updatePageUrls' || parsedData.type === 'newTrustBox') {
-            this.submitSettings(jsonData);
+            this.submitSettings(parsedData);
         }
     }
 }
