@@ -276,7 +276,7 @@ class Data extends AbstractHelper
     public function getProductIdentificationOptions()
     {
         $fields = array('none', 'sku', 'id');
-        $optionalFields = array('upc', 'isbn', 'brand', 'manufacturer');
+        $optionalFields = array('upc', 'isbn', 'brand', 'manufacturer', 'ean');
         $dynamicFields = array('mpn', 'gtin');
         $attrs = array_map(function ($t) { return $t; }, $this->getAttributes());
 
