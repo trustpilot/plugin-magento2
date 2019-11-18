@@ -5,6 +5,6 @@
         <block class="Trustpilot\Reviews\Block\Trustbox" name="trustpilot.head.trustbox" as="trustpilot.head.trustbox" template="Trustpilot_Reviews::trustbox.phtml"/>
     </referenceContainer>
     <head>
-        <css src="Trustpilot_Reviews::css/trustpilot.css"/>
+        <css src="Trustpilot_Reviews::css/trustpilot.min.css"/>
     </head>
 </page>
