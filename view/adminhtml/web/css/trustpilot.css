@@ -3,7 +3,7 @@
     src:url('../fonts/trustpilot.eot');
     src:url('../fonts/trustpilot.eot?#iefix') format('embedded-opentype'),url('../fonts/trustpilot.woff') format('woff'),url('../fonts/trustpilot.ttf') format('truetype'),url('../fonts/trustpilot.svg') format('svg');font-weight:normal;font-style:normal
 }
-  
+
 .admin__menu .level-0.item-trustpilot > a::before {
     content: '\e900';
     font-size: 2.6rem;
@@ -16,7 +16,7 @@
     display:none;
 }
 
-@import url('trustpilot-message.css');
+@import url('trustpilot-message.min.css');
 
 #row_trustpilotGeneral_general_trustpilot_admin .label {
     display: none;
