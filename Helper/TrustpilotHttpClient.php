@@ -54,7 +54,7 @@ class TrustpilotHttpClient extends AbstractHelper
                 'code' => $code,
             );
         }
-        return $this->post($url, $data, $origin, $storeId);
+        return $this->post($url, $origin, $data, $storeId);
     }
 
     public function postInvitation($key, $storeId, $data = array())
