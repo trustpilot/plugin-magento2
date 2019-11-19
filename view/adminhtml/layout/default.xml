@@ -4,5 +4,6 @@
     <head>
         <script src="Trustpilot_Reviews::js/admin.min.js"/>
         <css    src="Trustpilot_Reviews::css/trustpilot.min.css"/>
+        <css    src="Trustpilot_Reviews::css/trustpilot-message.min.css"/>
     </head>
 </page>
