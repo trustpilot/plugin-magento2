@@ -16,8 +16,6 @@
     display:none;
 }
 
-@import url('trustpilot-message.min.css');
-
 #row_trustpilotGeneral_general_trustpilot_admin .label {
     display: none;
 }
