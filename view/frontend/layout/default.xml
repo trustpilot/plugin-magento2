@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <referenceContainer name="head.additional">
-        <block class="Trustpilot\Reviews\Block\Head" name="trustpilot.head.head" as="trustpilot.head.head" template="Trustpilot_Reviews::head/head.phtml"/>
-        <block class="Trustpilot\Reviews\Block\Trustbox" name="trustpilot.head.trustbox" as="trustpilot.head.trustbox" template="Trustpilot_Reviews::trustbox.phtml"/>
-    </referenceContainer>
     <head>
         <css src="Trustpilot_Reviews::css/trustpilot.min.css"/>
     </head>
+    <body>
+        <referenceContainer name="head.additional">
+            <block class="Trustpilot\Reviews\Block\Head" name="trustpilot.head.head" as="trustpilot.head.head" template="Trustpilot_Reviews::head/head.phtml"/>
+            <block class="Trustpilot\Reviews\Block\Trustbox" name="trustpilot.head.trustbox" as="trustpilot.head.trustbox" template="Trustpilot_Reviews::trustbox.phtml"/>
+        </referenceContainer>
+    </body>
 </page>
