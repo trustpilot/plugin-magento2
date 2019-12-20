@@ -77,10 +77,41 @@ function receiveInternalData(e) {
     const data = e.data;
     const parsedData = {};
     if (data && typeof data === 'string' && tryParseJson(data, parsedData)) {
+        if (parsedData && parsedData.type === 'loadCategoryProductInfo') {
+            requestCategoryInfo();
+        }
         if (parsedData.type === 'updatePageUrls' || parsedData.type === 'newTrustBox') {
             this.submitSettings(parsedData);
         }
     }
+}
+
+function requestCategoryInfo() {
+    const data = {
+        action: 'get_category_product_info',
+        form_key: window.FORM_KEY,
+    };
+
+    if (typeof websiteId !== 'undefined') {
+        data.website_id = websiteId;
+    }
+    if (typeof storeId !== 'undefined') {
+        data.store_id = storeId;
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status >= 400) {
+                console.log(`callback error: ${xhr.response} ${xhr.status}`);
+            } else {
+                window.postMessage(JSON.stringify(xhr.response), window.origin);
+            }
+        }
+    }
+    xhr.open('POST', `${ajaxUrl}?isAjax=true`, true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send(encodeSettings(data));
 }
 
 function submitPastOrdersCommand(data) {

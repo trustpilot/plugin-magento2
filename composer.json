@@ -2,21 +2,21 @@
     "name": "trustpilot/module-reviews",
     "description": "The Trustpilot Review extension makes it simple and easy for merchants to collect reviews from their customers to power their marketing efforts, increase sales conversion, build their online reputation and draw business insights.",
     "type": "magento2-module",
-    "version": "2.6.524",
+    "version": "2.6.531",
     "license": [
       "OSL-3.0"
     ],
     "require": {
-      "magento/framework": "*",
-      "magento/module-sales": "*",
-      "magento/module-store": "*",
-      "magento/module-checkout": "*",
-      "magento/module-configurable-product": "*",
-      "magento/module-catalog": "*",
-      "magento/module-eav": "*",
-      "magento/module-admin-notification": "*",
-      "magento/module-backend": "*",
-      "psr/log": "*"
+      "magento/framework": ">=100.0.20",
+      "magento/module-sales": ">=100.0.16",
+      "magento/module-store": ">=100.0.9",
+      "magento/module-checkout": ">=100.0.16",
+      "magento/module-configurable-product": ">=100.0.12",
+      "magento/module-catalog": ">=100.0.17",
+      "magento/module-eav": ">=100.0.12",
+      "magento/module-admin-notification": ">=100.0.7",
+      "magento/module-backend": ">=100.0.12",
+      "psr/log": ">=1.0.0"
     },
     "autoload": {
       "files": [ "registration.php" ],

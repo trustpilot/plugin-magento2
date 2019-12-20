@@ -59,7 +59,7 @@ class Admin extends Field
     }
 
     public function getPluginStatus($scope, $storeId) {
-        return base64_encode($this->_helper->getConfig('plugin_status', $scope, $storeId));
+        return base64_encode($this->_helper->getConfig('plugin_status', $storeId, $scope));
     }
 
     public function getPastOrdersInfo($scope, $storeId) {
