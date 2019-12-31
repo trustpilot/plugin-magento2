@@ -10,7 +10,6 @@ use Trustpilot\Reviews\Helper\TrustpilotPluginStatus;
 use Trustpilot\Reviews\Helper\OrderData;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use Trustpilot\Reviews\Helper\TrustpilotLog;
-use \Magento\Store\Model\StoreManagerInterface;
 use \Magento\Framework\UrlInterface;
 
 class Success extends Template
@@ -31,7 +30,6 @@ class Success extends Template
         OrderData $orderData,
         TrustpilotLog $trustpilotLog,
         array $data = [],
-        StoreManagerInterface $storeManager,
         TrustpilotPluginStatus $pluginStatus)
     {
         $this->_salesFactory = $salesOrderFactory;
@@ -39,7 +37,7 @@ class Success extends Template
         $this->_helper = $helper;
         $this->_orderData = $orderData;
         $this->_trustpilotLog = $trustpilotLog;
-        $this->_storeManager = $storeManager;
+        $this->_storeManager = $context->getStoreManager();
         $this->_pluginStatus = $pluginStatus;
 
         parent::__construct($context, $data);

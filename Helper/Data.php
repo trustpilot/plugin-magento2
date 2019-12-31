@@ -16,6 +16,8 @@ use \Magento\Eav\Api\AttributeRepositoryInterface;
 use \Magento\Store\Model\StoreRepository;
 use Magento\Framework\App\Config\ReinitableConfigInterface;
 use \Magento\Framework\UrlInterface;
+use \Magento\Framework\Registry;
+use Magento\ConfigurableProduct\Api\LinkManagementInterface;
 
 class Data extends AbstractHelper
 {
@@ -32,6 +34,8 @@ class Data extends AbstractHelper
     protected $_storeRepository;
     protected $_integrationAppUrl;
     protected $_reinitableConfig;
+    protected $_registry;
+    protected $_linkManagement;
     protected $_trustpilotLog;
 
     public function __construct(
@@ -45,6 +49,8 @@ class Data extends AbstractHelper
         AttributeRepositoryInterface $attributeRepository,
         StoreRepository $storeRepository,
         ReinitableConfigInterface $reinitableConfig,
+        Registry $registry,
+        LinkManagementInterface $linkManagement,
         TrustpilotLog $trustpilotLog
     ) {
         $this->_storeManager = $storeManager;
@@ -59,6 +65,8 @@ class Data extends AbstractHelper
         $this->_storeRepository = $storeRepository;
         $this->_integrationAppUrl = \Trustpilot\Reviews\Model\Config::TRUSTPILOT_INTEGRATION_APP_URL;
         $this->_reinitableConfig = $reinitableConfig;
+        $this->_registry = $registry;
+        $this->_linkManagement = $linkManagement;
         $this->_trustpilotLog = $trustpilotLog;
     }
 
@@ -401,5 +409,40 @@ class Data extends AbstractHelper
             'country' => $config->getValue('general/store_information/country_id', $scope, $scopeId),
             'phone' => $config->getValue('general/store_information/phone', $scope, $scopeId)
         );
+    }
+
+    public function loadCategoryProductInfo($settings) {     
+        $skuSelector = $settings->skuSelector;
+        $productList = $variationSkus = $variationIds = array();
+
+        $params = $this->_request->getParams();
+        $category = $params['id'];
+        $limit = array_key_exists('limit', $params) ? $params['limit'] : $this->scopeConfig->getValue('catalog/frontend/grid_per_page');
+        $page = array_key_exists('limit', $params) ? $params['p'] : 1;
+
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $layerResolver = $objectManager->getInstance()->get(\Magento\Catalog\Model\Layer\Resolver::class);
+        $layer = $layerResolver->get();
+        $layer->setCurrentCategory($category);
+
+        $products = $layer->getProductCollection()->setPage($page, $limit);
+        foreach ($products->getItems() as $product) {
+            if ($product->getTypeId() == 'configurable') {
+                $childProducts = $this->_linkManagement->getChildren($product->getSku());
+                $variationSkus = $skuSelector  != 'id' ? $this->loadSelector($product, $skuSelector, $childProducts) : array();
+                $variationIds = $this->loadSelector($product, 'id', $childProducts);
+            }
+            $sku = $skuSelector != 'id' ? $this->loadSelector($product, $skuSelector) : '';
+            $id = $this->loadSelector($product, 'id');
+            array_push($productList, array(
+                "sku" => $sku,
+                "id" => $id,
+                "variationIds" => $variationIds,
+                "variationSkus" => $variationSkus,
+                "productUrl" => $product->getProductUrl() ?: '',
+                "name" => $product->getName(),
+            ));
+        }
+        return $productList;
     }
 }

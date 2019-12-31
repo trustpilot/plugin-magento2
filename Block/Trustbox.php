@@ -61,6 +61,7 @@ class Trustbox extends Template
             }
             else if ($this->_registry->registry('current_category')) {
                 $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'category'), (array)$loadedTrustboxes);
+                $trustboxSettings->categoryProductsData = $this->_helper->loadCategoryProductInfo($settings);
             }
             if ($this->_request->getFullActionName() == 'cms_index_index') {
                 $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'landing'), (array)$loadedTrustboxes);
