@@ -83,7 +83,9 @@ class Index extends Action
                     $this->getResponse()->setBody(json_encode($result));
                     break;
                 case 'get_category_product_info':
-                    $result = $this->_helper->loadCategoryProductInfo();
+                    $result = array(
+                        'categoryProductsData' => $this->_helper->loadDefaultCategoryProductInfo($scope, $scopeId)
+                    );
                     $this->getResponse()->setBody(json_encode($result));
                     break;
             }
