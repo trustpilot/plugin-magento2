@@ -249,14 +249,7 @@ class Data extends AbstractHelper
                 case 'trustpilot_trustbox_homepage':
                     return $this->_storeManager->getStore($storeId)->getBaseUrl().'?___store='.$storeCode;
                 case 'trustpilot_trustbox_category':
-                    $collection = $this->_categoryCollectionFactory->create();
-                    $collection->addAttributeToSelect('*');
-                    $collection->setStore($storeId);
-                    $collection->addAttributeToFilter('is_active', 1);
-                    $collection->addAttributeToFilter('children_count', 0);
-                    $collection->addUrlRewriteToResult();
-                    $collection->setPageSize(1);
-                    $category = $collection->getFirstItem();
+                    $category = $this->getFirstCategory($storeId);
                     $productUrl = strtok($category->getUrl(),'?').'?___store='.$storeCode;
                     return $productUrl;
                 case 'trustpilot_trustbox_product':
@@ -279,6 +272,17 @@ class Data extends AbstractHelper
             ));
             return $this->_storeManager->getStore()->getBaseUrl();
         }
+    }
+
+    public function getFirstCategory($storeId) {
+        $collection = $this->_categoryCollectionFactory->create();
+        $collection->addAttributeToSelect('*');
+        $collection->setStore($storeId);
+        $collection->addAttributeToFilter('is_active', 1);
+        $collection->addAttributeToFilter('children_count', 0);
+        $collection->addUrlRewriteToResult();
+        $collection->setPageSize(1);
+        return $collection->getFirstItem();
     }
 
     public function getProductIdentificationOptions()
@@ -411,38 +415,73 @@ class Data extends AbstractHelper
         );
     }
 
-    public function loadCategoryProductInfo($settings) {     
-        $skuSelector = $settings->skuSelector;
-        $productList = $variationSkus = $variationIds = array();
+    public function loadCategoryProductInfo($products, $scope, $scopeId) {
+        try {
+            $settings = json_decode(self::getConfig('master_settings_field', $scopeId, $scope));
+            $skuSelector = empty($settings->skuSelector) || $settings->skuSelector == 'none' ? 'sku' : $settings->skuSelector;
+            $productList = $variationSkus = $variationIds = array();
 
-        $params = $this->_request->getParams();
-        $category = $params['id'];
-        $limit = array_key_exists('limit', $params) ? $params['limit'] : $this->scopeConfig->getValue('catalog/frontend/grid_per_page');
-        $page = array_key_exists('limit', $params) ? $params['p'] : 1;
-
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $layerResolver = $objectManager->getInstance()->get(\Magento\Catalog\Model\Layer\Resolver::class);
-        $layer = $layerResolver->get();
-        $layer->setCurrentCategory($category);
-
-        $products = $layer->getProductCollection()->setPage($page, $limit);
-        foreach ($products->getItems() as $product) {
-            if ($product->getTypeId() == 'configurable') {
-                $childProducts = $this->_linkManagement->getChildren($product->getSku());
-                $variationSkus = $skuSelector  != 'id' ? $this->loadSelector($product, $skuSelector, $childProducts) : array();
-                $variationIds = $this->loadSelector($product, 'id', $childProducts);
+            foreach ($products->getItems() as $product) {
+                if ($product->getTypeId() == 'configurable') {
+                    $childProducts = $this->_linkManagement->getChildren($product->getSku());
+                    $variationSkus = $skuSelector  != 'id' ? $this->loadSelector($product, $skuSelector, $childProducts) : array();
+                    $variationIds = $this->loadSelector($product, 'id', $childProducts);
+                }
+                $sku = $skuSelector != 'id' ? $this->loadSelector($product, $skuSelector) : '';
+                $id = $this->loadSelector($product, 'id');
+                array_push($productList, array(
+                    "sku" => $sku,
+                    "id" => $id,
+                    "variationIds" => $variationIds,
+                    "variationSkus" => $variationSkus,
+                    "productUrl" => $product->getProductUrl() ?: '',
+                    "name" => $product->getName(),
+                ));
             }
-            $sku = $skuSelector != 'id' ? $this->loadSelector($product, $skuSelector) : '';
-            $id = $this->loadSelector($product, 'id');
-            array_push($productList, array(
-                "sku" => $sku,
-                "id" => $id,
-                "variationIds" => $variationIds,
-                "variationSkus" => $variationSkus,
-                "productUrl" => $product->getProductUrl() ?: '',
-                "name" => $product->getName(),
+            return $productList;
+        } catch(\Throwable $e) {
+            $description = 'Unable to load category product info ';
+            $this->_trustpilotLog->error($e, $description, array(
+                'scope' => $scope,
+                'scopeId' => $scopeId
             ));
+            return array();
+        } catch(\Exception $e) {
+            $description = 'Unable to load category product info ';
+            $this->_trustpilotLog->error($e, $description, array(
+                'scope' => $scope,
+                'scopeId' => $scopeId
+            ));
+            return array();
         }
-        return $productList;
+    }
+
+    public function loadDefaultCategoryProductInfo($scope, $scopeId) {
+        try {
+            $category = $this->getFirstCategory($scopeId);
+            $limit = $this->scopeConfig->getValue('catalog/frontend/grid_per_page');
+            $page = 1;
+
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $layerResolver = $objectManager->get(\Magento\Catalog\Model\Layer\Resolver::class);
+            $layer = $layerResolver->get();
+            $layer->setCurrentCategory($category);
+            $products = $layer->getProductCollection()->setPage($page, $limit);
+            return $this->loadCategoryProductInfo($products, $scope, $scopeId);
+        } catch(\Throwable $e) {
+            $description = 'Unable to load category product info ';
+            $this->_trustpilotLog->error($e, $description, array(
+                'scope' => $scope,
+                'scopeId' => $scopeId
+            ));
+            return array();
+        } catch(\Exception $e) {
+            $description = 'Unable to load category product info ';
+            $this->_trustpilotLog->error($e, $description, array(
+                'scope' => $scope,
+                'scopeId' => $scopeId
+            ));
+            return array();
+        }
     }
 }

@@ -103,7 +103,7 @@ class OrderData extends AbstractHelper
         }
 
         try {
-            if (!($this->is_empty($order->getShippingAddress()->getEmail())))
+            if (!($this->is_empty($order->getShippingAddress())) && !($this->is_empty($order->getShippingAddress()->getEmail())))
                 return $order->getShippingAddress()->getEmail();
         } catch (\Throwable $e) {
             $description = 'Unable to get customer email from a shipping address';
@@ -114,7 +114,7 @@ class OrderData extends AbstractHelper
         }
 
         try {
-            if (!($this->is_empty($order->getBillingAddress()->getEmail())))
+            if (!($this->is_empty($order->getBillingAddress())) && !($this->is_empty($order->getBillingAddress()->getEmail())))
                 return $order->getBillingAddress()->getEmail();
         } catch (\Throwable $e) {
             $description = 'Unable to get customer email from a billing address';
@@ -125,7 +125,7 @@ class OrderData extends AbstractHelper
         }
 
         try {
-            if (!($this->is_empty($order->getCustomerId())))
+            if (!($this->is_empty($order->getCustomerId())) && !($this->is_empty($order->getCustomerId())))
                 return $this->_customer->load($order->getCustomerId())->getEmail();
         } catch (\Throwable $e) {
             $description = 'Unable to get customer email from customer data';

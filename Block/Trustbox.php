@@ -61,7 +61,9 @@ class Trustbox extends Template
             }
             else if ($this->_registry->registry('current_category')) {
                 $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'category'), (array)$loadedTrustboxes);
-                $trustboxSettings->categoryProductsData = $this->_helper->loadCategoryProductInfo($settings);
+                if ($this->repeatData($loadedTrustboxes)) {
+                    $trustboxSettings->categoryProductsData = $this->loadCategoryProductInfo($scope, $storeId);
+                }
             }
             if ($this->_request->getFullActionName() == 'cms_index_index') {
                 $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'landing'), (array)$loadedTrustboxes);
@@ -74,6 +76,15 @@ class Trustbox extends Template
         }
 
         return '{"trustboxes":[]}';
+    }
+
+    private function repeatData($trustBoxes) {
+        foreach ($trustBoxes as $trustbox) {
+            if (isset($trustbox->repeat) && $trustbox->repeat || true) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function loadPageTrustboxes($settings, $page)
@@ -115,5 +126,17 @@ class Trustbox extends Template
             $tbPage == strtolower(base64_encode($page)) ||
             $tbPage == strtolower(base64_encode(rtrim($page, '/')))
         );
+    }
+
+    public function loadCategoryProductInfo($scope, $storeId) {
+        try {
+            $block = $this->getLayout()->getBlock('category.products.list');
+            $products = $block->getLoadedProductCollection();
+            return $this->_helper->loadCategoryProductInfo($products, $scope, $storeId);
+        } catch(\Throwable $e) { 
+            return array();
+        } catch(\Exception $e) {
+            return array();
+        }
     }
 }
