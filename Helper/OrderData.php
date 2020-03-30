@@ -213,11 +213,12 @@ class OrderData extends AbstractHelper
             return array_merge($productData, array(
                 'price' => $product->getFinalPrice(),
                 'currency' => $order->getOrderCurrencyCode(),
-                'description' => strip_tags($product->getDescription()),
+                'description' => $this->stripAllTags($product->getDescription(), true),
                 'meta' => array(
                     'title' => $product->getMetaTitle() ? $product->getMetaTitle() : $product->getName(),
                     'keywords' => $product->getMetaKeyword() ? $product->getMetaKeyword() : $product->getName(),
-                    'description' => $product->getMetaDescription() ? $product->getMetaDescription() : substr(strip_tags($product->getDescription()), 0, 255),
+                    'description' => $product->getMetaDescription() ?
+                        $product->getMetaDescription() : substr($this->stripAllTags($product->getDescription(), true), 0, 255),
                 ),
                 'manufacturer' => $manufacturer ? $manufacturer : '',
                 'categories' => $this->getProductCategories($product, $childProducts),
@@ -306,5 +307,17 @@ class OrderData extends AbstractHelper
         }
 
         return $videos;
+    }
+
+    function stripAllTags($string, $remove_breaks = false) {
+        if (gettype($string) != 'string') {
+            return '';
+        }
+        $string = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@si', '', $string);
+        $string = strip_tags($string);
+        if ($remove_breaks) {
+            $string = preg_replace('/[\r\n\t ]+/', ' ', $string);
+        }
+        return trim($string);
     }
 }
