@@ -18,6 +18,7 @@ use Magento\Framework\App\Config\ReinitableConfigInterface;
 use \Magento\Framework\UrlInterface;
 use \Magento\Framework\Registry;
 use Magento\ConfigurableProduct\Api\LinkManagementInterface;
+use \Magento\Framework\Url;
 
 class Data extends AbstractHelper
 {
@@ -37,6 +38,7 @@ class Data extends AbstractHelper
     protected $_registry;
     protected $_linkManagement;
     protected $_trustpilotLog;
+    protected $_url;
 
     public function __construct(
         Context $context,
@@ -51,7 +53,8 @@ class Data extends AbstractHelper
         ReinitableConfigInterface $reinitableConfig,
         Registry $registry,
         LinkManagementInterface $linkManagement,
-        TrustpilotLog $trustpilotLog
+        TrustpilotLog $trustpilotLog,
+        Url $url
     ) {
         $this->_storeManager = $storeManager;
         $this->_categoryCollectionFactory   = $categoryCollectionFactory;
@@ -68,6 +71,7 @@ class Data extends AbstractHelper
         $this->_registry = $registry;
         $this->_linkManagement = $linkManagement;
         $this->_trustpilotLog = $trustpilotLog;
+        $this->_url = $url;
     }
 
     public function getIntegrationAppUrl()
@@ -254,7 +258,11 @@ class Data extends AbstractHelper
                     return $productUrl;
                 case 'trustpilot_trustbox_product':
                     $product = $this->getFirstProduct('store', $storeId);
-                    $productUrl = strtok($product->setStoreId($storeId)->getUrlInStore(),'?').'?___store='.$storeCode;
+                    $productUrl = $this->_url->getUrl('catalog/product/view', [
+                        'id' => $product->getId(),
+                        '_nosid' => true,
+                        '_query' => ['___store' => $storeCode]
+                    ]);
                     return $productUrl;
             }
         } catch (\Throwable $e) {
