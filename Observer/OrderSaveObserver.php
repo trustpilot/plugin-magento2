@@ -89,8 +89,6 @@ class OrderSaveObserver implements ObserverInterface
             $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
 
             if ($response['code'] == 201) {
-                $synced_orders = (int) ($synced_orders + 1);
-                $this->saveConfig('past_orders', $synced_orders, $scope, $storeId);
                 if (isset($failed_orders->{$order['referenceId']})) {
                     unset($failed_orders->{$order['referenceId']});
                     $this->saveConfig('failed_orders', json_encode($failed_orders), $scope, $storeId);

@@ -164,10 +164,10 @@ class OrderData extends AbstractHelper
 
             $items = $order->getAllVisibleItems();
             foreach ($items as $item) {
-                $product= $this->_productFactory->create()->setStoreId($storeId)->load($item->getProductId());
+                $product = $this->_productFactory->create()->setStoreId($storeId)->load($item->getProductId());
 
                 $childProducts = array();
-                if ($item->getHasChildren()) {
+                if ($item->getHasChildren() && !($product->getTypeId() == 'bundle')) {
                     $orderChildItems = $item->getChildrenItems();
                     foreach ($orderChildItems as $cpItem) {
                         array_push($childProducts, $cpItem->getProduct());
