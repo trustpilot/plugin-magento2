@@ -187,7 +187,7 @@ class OrderData extends AbstractHelper
                     'mpn' => $mpn ? $mpn : '',
                     'gtin' => $gtin ? $gtin : '',
                     'imageUrl' => $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
-                        . 'catalog/product' . $product->getImage()
+                        . 'catalog/product/' . ltrim($product->getImage(), '/')
                 );
 
                 $productData = $this->getProductExtraFields($productData, $product, $childProducts, $order);
