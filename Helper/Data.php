@@ -181,7 +181,11 @@ class Data extends AbstractHelper
 
         $setting = $this->scopeConfig->getValue($path, $scope, $storeId);
         
-        return $setting ? $setting : $this->getDefaultConfigValues($config);
+        if ($config === 'master_settings_field') {
+            return ($setting && json_decode($setting) != null) ? $setting : $this->getDefaultConfigValues($config);
+        } else {
+            return $setting ? $setting : $this->getDefaultConfigValues($config);
+        }
     }
 
     public function setConfig($config, $value, $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeId = 0)
