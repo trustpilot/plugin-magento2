@@ -4,7 +4,7 @@
         <css src="Trustpilot_Reviews::css/trustpilot.min.css"/>
     </head>
     <body>
-        <referenceContainer name="head.additional">
+        <referenceContainer name="before.body.end">
             <block class="Trustpilot\Reviews\Block\Head" name="trustpilot.head.head" as="trustpilot.head.head" template="Trustpilot_Reviews::head/head.phtml"/>
             <block class="Trustpilot\Reviews\Block\Trustbox" name="trustpilot.head.trustbox" as="trustpilot.head.trustbox" template="Trustpilot_Reviews::trustbox.phtml"/>
         </referenceContainer>
