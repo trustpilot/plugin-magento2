@@ -16,7 +16,7 @@ class Config
     const TRUSTPILOT_GENERAL_CONFIGURATION      = 'general';
     const TRUSTPILOT_TRUSTBOX_CONFIGURATION     = 'trustbox';
     const TRUSTPILOT_INTEGRATION_KEY            = 'key';
-    const TRUSTPILOT_PLUGIN_VERSION             = '2.6.563';
+    const TRUSTPILOT_PLUGIN_VERSION             = '2.6.564';
     const TRUSTPILOT_SCRIPT                     = 'TrustpilotScriptUrl';
     const TRUSTPILOT_INTEGRATION_APP            = 'IntegrationAppUrl';
     const TRUSTPILOT_WIDGET_SCRIPT              = 'WidgetScriptUrl';
