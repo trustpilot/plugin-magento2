@@ -54,15 +54,15 @@ class Trustbox extends Template
         $trustboxSettings = $settings->trustbox;
         if (isset($trustboxSettings->trustboxes)) {
             $currentUrl = $this->getCurrentUrl();
+            $currentCategory = $this->_registry->registry('current_category');
             $loadedTrustboxes = $this->loadPageTrustboxes($settings, $currentUrl);
 
             if ($this->_registry->registry('current_product')) {
                 $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'product'), (array)$loadedTrustboxes);
-            }
-            else if ($this->_registry->registry('current_category')) {
+            } else if ($currentCategory) {
                 $loadedTrustboxes = array_merge((array)$this->loadPageTrustboxes($settings, 'category'), (array)$loadedTrustboxes);
                 if ($this->repeatData($loadedTrustboxes)) {
-                    $trustboxSettings->categoryProductsData = $this->loadCategoryProductInfo($scope, $storeId);
+                    $trustboxSettings->categoryProductsData = $this->loadCategoryProductInfo($scope, $storeId, $currentCategory);
                 }
             }
             if ($this->_request->getFullActionName() == 'cms_index_index') {
@@ -128,12 +128,16 @@ class Trustbox extends Template
         );
     }
 
-    public function loadCategoryProductInfo($scope, $storeId) {
+    public function loadCategoryProductInfo($scope, $storeId, $category = null) {
         try {
-            $block = $this->getLayout()->getBlock('category.products.list');
-            $products = $block->getLoadedProductCollection();
+            if ($category == null) {
+                $block = $this->getLayout()->getBlock('category.products.list');
+                $products = $block->getLoadedProductCollection();
+            } else {
+                $products = $cat->getProductCollection();
+            }
             return $this->_helper->loadCategoryProductInfo($products, $scope, $storeId);
-        } catch(\Throwable $e) { 
+        } catch(\Throwable $e) {
             return array();
         } catch(\Exception $e) {
             return array();
