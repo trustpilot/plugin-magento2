@@ -134,7 +134,7 @@ class Trustbox extends Template
                 $block = $this->getLayout()->getBlock('category.products.list');
                 $products = $block->getLoadedProductCollection();
             } else {
-                $products = $cat->getProductCollection();
+                $products = $category->getProductCollection();
             }
             return $this->_helper->loadCategoryProductInfo($products, $scope, $storeId);
         } catch(\Throwable $e) {
