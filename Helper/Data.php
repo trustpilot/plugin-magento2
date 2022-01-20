@@ -263,6 +263,7 @@ class Data extends AbstractHelper
                 case 'trustpilot_trustbox_product':
                     $product = $this->getFirstProduct('store', $storeId);
                     $productUrl = $this->_url->getUrl('catalog/product/view', [
+                        '_scope' => $storeId,
                         'id' => $product->getId(),
                         '_nosid' => true,
                         '_query' => ['___store' => $storeCode]
