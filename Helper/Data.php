@@ -130,10 +130,10 @@ class Data extends AbstractHelper
 
     public function getWebsiteOrStoreId()
     {
-        if (strlen($this->_request->getParam('store'))) {
+        if ($this->_request->getParam('store') !== null && strlen($this->_request->getParam('store'))) {
             return (int) $this->_request->getParam('store', 0);
         }
-        if (strlen($this->_request->getParam('website'))) {
+        if ($this->_request->getParam('website') !== null && strlen($this->_request->getParam('website'))) {
             return (int) $this->_request->getParam('website', 0);
         }
         if ($this->isAdminPage() && $this->_storeManager->getStore()->getWebsiteId()) {
@@ -148,11 +148,11 @@ class Data extends AbstractHelper
     public function getScope()
     {
         // user is on the admin store level
-        if (strlen($this->_request->getParam('store'))) {
+        if ($this->_request->getParam('store') !== null && strlen($this->_request->getParam('store'))) {
             return StoreScopeInterface::SCOPE_STORES;
         }
         // user is on the admin website level
-        if (strlen($this->_request->getParam('website'))) {
+        if ($this->_request->getParam('website') !== null && strlen($this->_request->getParam('website'))) {
             return StoreScopeInterface::SCOPE_WEBSITES;
         }
         // is user is on admin page, try to automatically detect his website scope
