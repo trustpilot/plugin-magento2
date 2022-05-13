@@ -29,7 +29,7 @@ class Success extends Template
         Data $helper,
         OrderData $orderData,
         TrustpilotLog $trustpilotLog,
-        array $data = [],
+        array $data,
         TrustpilotPluginStatus $pluginStatus)
     {
         $this->_salesFactory = $salesOrderFactory;
