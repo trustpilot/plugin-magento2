@@ -206,10 +206,24 @@ class OrderData extends AbstractHelper
 
         return $products;
     }
+    function getOptionText($product, $fieldName, $optionId) {
+        try {
+            return $product->getAttributeText($fieldName);
+        } catch (\Throwable $e) {
+            return $optionId;
+        } catch (\Exception $e) {
+            return $optionId;
+        }
+    }
 
     function getProductExtraFields($productData, $product, $childProducts, $order) {
         try {
             $manufacturer = $this->_helper->loadSelector($product, 'manufacturer', $childProducts);
+            $manufacturerValue = $this->getOptionText($product, 'manufacturer', $manufacturer);
+            
+            $brandField = $product->getBrand();
+            $brandValue = $this->getOptionText($product, 'brand', $brandField);
+            
             return array_merge($productData, array(
                 'price' => $product->getFinalPrice(),
                 'currency' => $order->getOrderCurrencyCode(),
@@ -220,12 +234,12 @@ class OrderData extends AbstractHelper
                     'description' => $product->getMetaDescription() ?
                         $product->getMetaDescription() : substr($this->stripAllTags($product->getDescription(), true), 0, 255),
                 ),
-                'manufacturer' => $manufacturer ? $manufacturer : '',
+                'manufacturer' => $manufacturerValue ? $manufacturerValue : '',
                 'categories' => $this->getProductCategories($product, $childProducts),
                 'images' => $this->getAllImages($product, $childProducts),
                 'videos' => $this->getAllVideos($product, $childProducts),
                 'tags' => null,
-                'brand' => $product->getBrand() ? $product->getBrand() : $manufacturer,
+                'brand' => $brandValue ? $brandValue : ($manufacturerValue ? $manufacturerValue : ''),
             ));
         } catch (\Throwable $e) {
             $description = 'Unable to get product extra fields';
