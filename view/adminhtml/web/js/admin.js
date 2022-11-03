@@ -4,7 +4,12 @@ function receiveSettings(e) {
     if (e.origin === location.origin){
         return receiveInternalData(e);
     }
+
     const iframe = document.getElementById('configuration_iframe');
+    if (!iframe) {
+        return;
+    }
+
     const attrs = iframe.dataset;
     if (e.origin !== attrs.transfer) {
         return;
