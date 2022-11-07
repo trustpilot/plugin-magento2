@@ -16,7 +16,7 @@ class Config
     const TRUSTPILOT_GENERAL_CONFIGURATION      = 'general';
     const TRUSTPILOT_TRUSTBOX_CONFIGURATION     = 'trustbox';
     const TRUSTPILOT_INTEGRATION_KEY            = 'key';
-    const TRUSTPILOT_PLUGIN_VERSION             = '2.6.574';
+    const TRUSTPILOT_PLUGIN_VERSION             = '2.6.576';
     const TRUSTPILOT_SCRIPT                     = 'TrustpilotScriptUrl';
     const TRUSTPILOT_INTEGRATION_APP            = 'IntegrationAppUrl';
     const TRUSTPILOT_WIDGET_SCRIPT              = 'WidgetScriptUrl';
@@ -32,4 +32,5 @@ class Config
     const TRUSTPILOT_TRUSTBOX_PREVIEW_URL       = '//ecommplugins-trustboxpreview.trustpilot.com/v1.0/trustboxpreview.min.js';
     const TRUSTPILOT_IS_FROM_MARKETPLACE        = 'false';
     const TRUSTPILOT_PRODUCT_ID_PREFIX          = 'TRUSTPILOT_SKU_VALUE_';
+    const MAX_SKU_LENGTH                        = 6000;
 }
