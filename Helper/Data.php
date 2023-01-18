@@ -258,8 +258,13 @@ class Data extends AbstractHelper
                     return $this->_storeManager->getStore($storeId)->getBaseUrl().'?___store='.$storeCode;
                 case 'trustpilot_trustbox_category':
                     $category = $this->getFirstCategory($storeId);
-                    $productUrl = strtok($category->getUrl(),'?').'?___store='.$storeCode;
-                    return $productUrl;
+                    $categoryUrl = $this->_url->getUrl('catalog/category/view', [
+                        '_scope' => $storeId,
+                        'id' => $category->getId(),
+                        '_nosid' => true,
+                        '_query' => ['___store' => $storeCode]
+                    ]);
+                    return $categoryUrl;
                 case 'trustpilot_trustbox_product':
                     $product = $this->getFirstProduct('store', $storeId);
                     $productUrl = $this->_url->getUrl('catalog/product/view', [

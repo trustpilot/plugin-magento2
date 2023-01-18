@@ -87,6 +87,32 @@ class Trustbox extends Template
         return false;
     }
 
+    private function loadSkus($current_product, $skuSelector, $includeIds) 
+    {
+        $skus = array();
+        if ($includeIds) {
+            array_push($skus, \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PRODUCT_ID_PREFIX . $current_product->getId());
+        }
+        $productSku = $this->_helper->loadSelector($current_product, $skuSelector);
+        if ($productSku) {
+            array_push($skus, $productSku);
+        }
+
+        if ($current_product->getTypeId() == 'configurable') {
+            $collection = $this->_linkManagement->getChildren($current_product->getSku());
+            foreach ($collection as $product) {
+                if ($includeIds) {
+                    array_push($skus, \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PRODUCT_ID_PREFIX . $product->getId());
+                }
+                $productSku = $this->_helper->loadSelector($product, $skuSelector);
+                if ($productSku) {
+                    array_push($skus, $productSku);
+                }
+            }
+        }
+        return implode(',', $skus);
+    }
+
     private function loadPageTrustboxes($settings, $page)
     {
         $data = [];
@@ -95,23 +121,11 @@ class Trustbox extends Template
             if ((rtrim($trustbox->page, '/') == rtrim($page, '/') || $this->checkCustomPage($trustbox->page, $page)) && $trustbox->enabled == 'enabled') {
                 $current_product = $this->_registry->registry('current_product');
                 if ($current_product) {
-                    $skus = array();
-                    $productSku = $this->_helper->loadSelector($current_product, $skuSelector);
-                    if ($productSku) {
-                        array_push($skus, $productSku);
+                    $sku = $this->loadSkus($current_product, $skuSelector, true);
+                    if (strlen($sku) > \Trustpilot\Reviews\Model\Config::MAX_SKU_LENGTH) {
+                        $sku = $this->loadSkus($current_product, $skuSelector, false);
                     }
-                    array_push($skus, \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PRODUCT_ID_PREFIX . $current_product->getId());
-                    if ($current_product->getTypeId() == 'configurable') {
-                        $collection = $this->_linkManagement->getChildren($current_product->getSku());
-                        foreach ($collection as $product) {
-                            $productSku = $this->_helper->loadSelector($product, $skuSelector);
-                            if ($productSku) {
-                                array_push($skus, $productSku);
-                            }
-                            array_push($skus, \Trustpilot\Reviews\Model\Config::TRUSTPILOT_PRODUCT_ID_PREFIX . $product->getId());
-                        }
-                    }
-                    $trustbox->sku = implode(',', $skus);
+                    $trustbox->sku = $sku;
                     $trustbox->name = $current_product->getName();
                 }
                 array_push($data, $trustbox);

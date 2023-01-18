@@ -35,7 +35,8 @@
     if (inIframe()) {
         window.addEventListener('message', function(e) {
             var adminOrign = new URL(window.location).hostname;
-            if (!e.data || e.origin.indexOf(adminOrign) === -1) {
+            var eventOriginHostname = new URL(e.origin).hostname;
+            if (!e.data || adminOrign !== eventOriginHostname) {
                 return;
             }
             if (typeof TrustpilotPreview !== 'undefined') {
