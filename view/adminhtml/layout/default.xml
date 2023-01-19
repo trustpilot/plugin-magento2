@@ -2,7 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <script src="Trustpilot_Reviews::js/admin.min.js"/>
+        <script src="Trustpilot_Reviews::js/admin.js"/>
         <css    src="Trustpilot_Reviews::css/trustpilot.min.css"/>
         <css    src="Trustpilot_Reviews::css/trustpilot-message.min.css"/>
     </head>
