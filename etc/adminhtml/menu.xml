@@ -4,6 +4,7 @@
     <menu>
         <add id="Trustpilot_Reviews::Trustpilot"
             title="Trustpilot"
+            translate="title"
             module="Trustpilot_Reviews"
             sortOrder="9999"
             action="trustpilot_reviews/trustpilot"
