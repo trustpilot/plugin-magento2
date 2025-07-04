@@ -1,9 +1,25 @@
-<?php /* @var $block \Trustpilot\Reviews\Block\Trustbox */?>
-<script type="text/javascript" async>
-    const trustpilot_trustbox_settings = <?php echo $block->loadTrustboxes(); ?>;
+<?php
+
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Trustpilot\Reviews\Block\Trustbox as TrustboxBlock;
+
+/** @var SecureHtmlRenderer $secureRenderer */
+/** @var TrustboxBlock $block */
+
+?>
+<?php
+    $scriptString = '
+    const trustpilot_trustbox_settings = ' . $block->loadTrustboxes() . ';
     if (trustpilot_trustbox_settings) {
-        document.addEventListener('DOMContentLoaded', function() {
-            tp('trustBox', trustpilot_trustbox_settings);
+        document.addEventListener("DOMContentLoaded", function() {
+            tp("trustBox", trustpilot_trustbox_settings);
         });
     }
-</script>
+';
+
+// checking on if SecureHtmlRenderer exists first, because this module is still compatible with Magento 2.3.x which doesn't include this class
+if (class_exists(SecureHtmlRenderer::class)) {
+    echo $secureRenderer->renderTag('script', ['async' => 'async'], $scriptString, false);
+} else {
+    echo '<script async>' . $scriptString . '</script>';
+}
