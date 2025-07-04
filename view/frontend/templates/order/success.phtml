@@ -1,6 +1,22 @@
-<?php /* @var $block \Trustpilot\Reviews\Block\Success */?>     
-<script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-        tp('createInvitation',<?php echo $block->getOrder(); ?>);
+<?php
+
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Trustpilot\Reviews\Block\Success as SuccessBlock;
+
+/** @var SecureHtmlRenderer $secureRenderer */
+/** @var SuccessBlock $block */
+
+?>
+<?php
+    $scriptString = '
+    document.addEventListener("DOMContentLoaded", function() {
+        tp("createInvitation", ' .  $block->getOrder() . ');
     });
-</script>
+';
+
+// checking on if SecureHtmlRenderer exists first, because this module is still compatible with Magento 2.3.x which doesn't include this class
+if (class_exists(SecureHtmlRenderer::class)) {
+    echo $secureRenderer->renderTag('script', [], $scriptString, false);
+} else {
+    echo '<script>' . $scriptString . '</script>';
+}

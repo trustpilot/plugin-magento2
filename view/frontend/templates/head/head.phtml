@@ -1,18 +1,27 @@
-<?php /* @var $block \Trustpilot\Reviews\Block\Head */?>
-<script type="text/javascript" async>
+<?php
+
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Trustpilot\Reviews\Block\Head as HeadBlock;
+
+/** @var SecureHtmlRenderer $secureRenderer */
+/** @var HeadBlock $block */
+
+?>
+<?php
+    $scriptStringPartOne = '
     var w = document.createElement("script");
     w.type = "text/javascript";
-    w.src = "<?php echo $block->getWidgetScriptUrl(); ?>";
+    w.src = "' . $block->escapeJs($block->getWidgetScriptUrl()) . '";
     w.async = true;
     document.head.appendChild(w);
-</script>
-<script type="text/javascript">
+';
+
+    $scriptStringPartTwo = '
     (function(w,d,s,r,n){w.TrustpilotObject=n;w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)};
-    a=d.createElement(s);a.async=1;a.src=r;a.type='text/java'+s;f=d.getElementsByTagName(s)[0];
-    f.parentNode.insertBefore(a,f)})(window,document,'script', '<?php echo $block->getScriptUrl(); ?>', 'tp');
-    tp('register','<?php echo $block->getInstallationKey(); ?>');
-</script>
-<script type="text/javascript">
+    a=d.createElement(s);a.async=1;a.src=r;a.type="text/java"+s;f=d.getElementsByTagName(s)[0];
+    f.parentNode.insertBefore(a,f)})(window,document,"script", "' . $block->escapeJs($block->getScriptUrl()) . '", "tp");
+    tp("register","' . $block->escapeJs($block->getInstallationKey()) . '");
+
     function inIframe () {
         try {
             return window.self !== window.top;
@@ -22,7 +31,7 @@
     }
 
     function tryParseJson(str) {
-        if (typeof str === 'string') {
+        if (typeof str === "string") {
             try {
                 return JSON.parse(str);
             } catch (e) {
@@ -33,14 +42,14 @@
     }
 
     if (inIframe()) {
-        window.addEventListener('message', function(e) {
+        window.addEventListener("message", function(e) {
             var adminOrign = new URL(window.location).hostname;
             var eventOriginHostname = new URL(e.origin).hostname;
             if (!e.data || adminOrign !== eventOriginHostname) {
                 return;
             }
-            if (typeof TrustpilotPreview !== 'undefined') {
-                if (typeof e.data === 'string' && e.data === 'submit') {
+            if (typeof TrustpilotPreview !== "undefined") {
+                if (typeof e.data === "string" && e.data === "submit") {
                     TrustpilotPreview.sendTrustboxes();
                 } else {
                     jsonData = tryParseJson(e.data);
@@ -56,13 +65,22 @@
                     var p = document.createElement("script");
                     p.type = "text/javascript";
                     p.onload = function () {
-                        const iFrame = e.source.parent.document.getElementById('configuration_iframe').contentWindow;
-                        TrustpilotPreview.init(['<?php echo $block->getPreviewCssUrl(); ?>'], settings, iFrame, e.source);
+                        const iFrame = e.source.parent.document.getElementById("configuration_iframe").contentWindow;
+                        TrustpilotPreview.init(["' . $block->escapeJs($block->getPreviewCssUrl()) . '"], settings, iFrame, e.source);
                     };
-                    p.src = '<?php echo $block->getPreviewScriptUrl(); ?>';
+                    p.src = "' . $block->escapeJs($block->getPreviewScriptUrl()) . '";
                     document.head.appendChild(p);
                 }
             }
         });
     }
-</script>
+';
+
+// checking on if SecureHtmlRenderer exists first, because this module is still compatible with Magento 2.3.x which doesn't include this class
+if (class_exists(SecureHtmlRenderer::class)) {
+    echo $secureRenderer->renderTag('script', ['async' => 'async'], $scriptStringPartOne, false);
+    echo $secureRenderer->renderTag('script', [], $scriptStringPartTwo, false);
+} else {
+    echo '<script async>' . $scriptStringPartOne . '</script>';
+    echo '<script>' . $scriptStringPartTwo . '</script>';
+}
