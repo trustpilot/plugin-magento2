@@ -87,6 +87,9 @@ class OrderSaveObserver implements ObserverInterface
             $scope = StoreScopeInterface::SCOPE_STORES;
             $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId, $scope);
             $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
+            if (!is_object($failed_orders)) {
+                $failed_orders = new \stdClass();
+            }
 
             if ($response['code'] == 201) {
                 if (isset($failed_orders->{$order['referenceId']})) {

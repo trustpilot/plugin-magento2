@@ -81,7 +81,7 @@ class PastOrders extends AbstractHelper
         $this->_helper->setConfig('sync_in_progress', 'true', $scope, $storeId);
         try {
             $key = $this->_helper->getKey($scope, $storeId);
-            $failed_orders_object = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
+            $failed_orders_object = $this->getFailedOrders($scope, $storeId);
             $collect_product_data = \Trustpilot\Reviews\Model\Config::WITHOUT_PRODUCT_DATA;
             if (!is_null($key)) {
                 $failed_orders_array = array();
@@ -141,7 +141,7 @@ class PastOrders extends AbstractHelper
         $showInitial = $this->_helper->getConfig('show_past_orders_initial', $storeId, $scope);
         if ($syncInProgress === 'false') {
             $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId, $scope);
-            $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
+            $failed_orders = $this->getFailedOrders($scope, $storeId);
 
             $failed_orders_result = array();
             foreach ($failed_orders as $key => $value) {
@@ -169,6 +169,12 @@ class PastOrders extends AbstractHelper
                 )
             );
         }
+    }
+
+    private function getFailedOrders($scope, $storeId)
+    {
+        $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
+        return is_object($failed_orders) ? $failed_orders : new \stdClass();
     }
 
     private function getSalesCollection($period_in_days, $scope, $storeId) {
@@ -205,7 +211,7 @@ class PastOrders extends AbstractHelper
     private function handleTrustpilotResponse($response, $post_batch, $scope, $storeId)
     {
         $synced_orders = (int) $this->_helper->getConfig('past_orders', $storeId, $scope);
-        $failed_orders = json_decode($this->_helper->getConfig('failed_orders', $storeId, $scope));
+        $failed_orders = $this->getFailedOrders($scope, $storeId);
 
         $data = array();
         if (isset($response['data']))
